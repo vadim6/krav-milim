@@ -84,16 +84,34 @@ export async function PUT(req: NextRequest) {
   const service = createServiceClient()
   const today   = new Date().toISOString().split("T")[0]
 
-  if (action === "pick_today") {
-    const { error } = await service.rpc("pick_word_for_date", { target_date: today })
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ ok: true, message: "מילת היום נבחרה בהצלחה" })
-  }
+  if (action === "pick_today" || action === "pick_now") {
+    const targetDate = action === "pick_today"
+      ? today
+      : new Date(Date.now() + 86400000).toISOString().split("T")[0]
 
-  if (action === "pick_now") {
-    const { error } = await service.rpc("pick_daily_word")
+    // Pick a random unscheduled word and assign it to the target date
+    const { data: candidate } = await service
+      .from("words")
+      .select("id")
+      .eq("source", "daily_global")
+      .is("date", null)
+      .limit(100)
+
+    if (!candidate || candidate.length === 0) {
+      return NextResponse.json({ error: "אין מילים זמינות בבריכה" }, { status: 404 })
+    }
+
+    const pick = candidate[Math.floor(Math.random() * candidate.length)]
+    const { error } = await service
+      .from("words")
+      .update({ date: targetDate })
+      .eq("id", pick.id)
+
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ ok: true, message: "מילת מחר נבחרה בהצלחה" })
+    return NextResponse.json({
+      ok: true,
+      message: action === "pick_today" ? "מילת היום נבחרה בהצלחה" : "מילת מחר נבחרה בהצלחה",
+    })
   }
 
   return NextResponse.json({ error: "Unknown action" }, { status: 400 })
