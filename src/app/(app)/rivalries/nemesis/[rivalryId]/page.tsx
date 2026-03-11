@@ -85,8 +85,9 @@ export default async function NemesisRivalryPage({ params }: Props) {
               const pending = !myResult || !theirResult
 
               // Type assertions for joined rows
-              const myR   = myResult   as { guesses: number; solved: boolean; duration_seconds: number | null } | null
-              const theirR = theirResult as { guesses: number; solved: boolean; duration_seconds: number | null } | null
+              type RoundResult = { guesses: number; solved: boolean; duration_seconds: number | null } | null
+              const myR    = myResult    as unknown as RoundResult
+              const theirR = theirResult as unknown as RoundResult
 
               return (
                 <div
