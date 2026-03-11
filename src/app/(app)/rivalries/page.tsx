@@ -22,7 +22,7 @@ export default async function RivalriesPage() {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">נמסיס</h2>
+          <h2 className="text-lg font-semibold">נֶמֶסִיס</h2>
           <Link href="/rivalries/nemesis" className="text-sm text-green-600 hover:underline">
             הכל ←
           </Link>

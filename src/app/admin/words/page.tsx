@@ -10,21 +10,31 @@ interface WordRow {
   created_at: string
 }
 
-export default function AdminWordsPage() {
-  const [words, setWords]         = useState<WordRow[]>([])
-  const [newWord, setNewWord]     = useState("")
-  const [newDate, setNewDate]     = useState(todayStr())
-  const [error, setError]         = useState<string | null>(null)
-  const [success, setSuccess]     = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
+function todayStr() {
+  return new Date().toISOString().split("T")[0]
+}
 
-  function todayStr() {
-    return new Date().toISOString().split("T")[0]
-  }
+export default function AdminWordsPage() {
+  const [words, setWords]                     = useState<WordRow[]>([])
+  const [newWord, setNewWord]                 = useState("")
+  const [newDate, setNewDate]                 = useState(todayStr())
+  const [poolRemaining, setPoolRemaining]     = useState<number | null>(null)
+  const [error, setError]                     = useState<string | null>(null)
+  const [success, setSuccess]                 = useState<string | null>(null)
+  const [confirmPickNow, setConfirmPickNow]   = useState(false)
+  const [confirmPickToday, setConfirmPickToday] = useState(false)
+  const [isPending, startTransition]          = useTransition()
 
   async function loadWords() {
-    const res = await fetch("/api/admin/words")
-    if (res.ok) setWords(await res.json())
+    const [wordsRes, statsRes] = await Promise.all([
+      fetch("/api/admin/words"),
+      fetch("/api/admin/stats"),
+    ])
+    if (wordsRes.ok) setWords(await wordsRes.json())
+    if (statsRes.ok) {
+      const stats = await statsRes.json()
+      setPoolRemaining(stats.poolRemaining ?? null)
+    }
   }
 
   useEffect(() => { loadWords() }, [])
@@ -50,8 +60,37 @@ export default function AdminWordsPage() {
     })
   }
 
+  async function handlePickNow() {
+    setError(null)
+    setSuccess(null)
+    setConfirmPickNow(false)
+    const res = await fetch("/api/admin/words?action=pick_now", { method: "PUT" })
+    if (!res.ok) {
+      const { error } = await res.json()
+      setError(error ?? "שגיאה")
+    } else {
+      const { message } = await res.json()
+      setSuccess(message)
+      await loadWords()
+    }
+  }
+
+  async function handlePickToday() {
+    setError(null)
+    setSuccess(null)
+    setConfirmPickToday(false)
+    const res = await fetch("/api/admin/words?action=pick_today", { method: "PUT" })
+    if (!res.ok) {
+      const { error } = await res.json()
+      setError(error ?? "שגיאה")
+    } else {
+      const { message } = await res.json()
+      setSuccess(message)
+      await loadWords()
+    }
+  }
+
   async function handleDelete(id: string, word: string) {
-    if (!confirm(`למחוק את המילה "${word}"?`)) return
     setError(null)
     const res = await fetch(`/api/admin/words?id=${id}`, { method: "DELETE" })
     if (!res.ok) {
@@ -63,15 +102,68 @@ export default function AdminWordsPage() {
   }
 
   const upcoming = words.filter(w => w.date && w.date >= todayStr()).sort((a, b) => a.date!.localeCompare(b.date!))
-  const past     = words.filter(w => !w.date || w.date < todayStr()).sort((a, b) => b.date!.localeCompare(a.date!))
+  const past     = words.filter(w => w.date && w.date < todayStr()).sort((a, b) => b.date!.localeCompare(a.date!))
+
+  const poolLow = poolRemaining !== null && poolRemaining < 30
 
   return (
     <div className="max-w-2xl mx-auto flex flex-col gap-8">
       <h1 className="text-2xl font-bold">ניהול מילים יומיות</h1>
 
+      {/* Pool stats */}
+      <div className={`flex items-center justify-between p-4 rounded-xl border ${poolLow ? "border-red-500/50 bg-red-900/10" : "border-gray-700 bg-gray-900"}`}>
+        <div>
+          <p className="text-sm text-gray-400">מילים בבריכה (לא מתוזמנות)</p>
+          <p className={`text-2xl font-bold ${poolLow ? "text-red-400" : "text-white"}`}>
+            {poolRemaining === null ? "…" : poolRemaining.toLocaleString()}
+          </p>
+          {poolLow && (
+            <p className="text-red-400 text-xs mt-1">אזהרה: פחות מ-30 מילים נותרו</p>
+          )}
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          {/* Pick today */}
+          {confirmPickToday ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-orange-300">בחר מילה אקראית להיום?</span>
+              <button onClick={() => setConfirmPickToday(false)} className="text-sm px-3 py-1.5 rounded-lg border border-gray-600 text-gray-300 hover:border-gray-400 transition-colors">ביטול</button>
+              <button onClick={handlePickToday} className="text-sm px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium transition-colors">אישור</button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmPickToday(true)}
+              disabled={!poolRemaining}
+              className="text-sm px-4 py-2 rounded-lg bg-blue-700 hover:bg-blue-600 disabled:opacity-40 text-white transition-colors"
+            >
+              בחר מילה להיום
+            </button>
+          )}
+          {/* Pick tomorrow */}
+          {confirmPickNow ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-orange-300">בחר מילה אקראית למחר?</span>
+              <button onClick={() => setConfirmPickNow(false)} className="text-sm px-3 py-1.5 rounded-lg border border-gray-600 text-gray-300 hover:border-gray-400 transition-colors">ביטול</button>
+              <button onClick={handlePickNow} className="text-sm px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium transition-colors">אישור</button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmPickNow(true)}
+              disabled={!poolRemaining}
+              className="text-sm px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 disabled:opacity-40 text-white transition-colors"
+            >
+              בחר מילה למחר
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Feedback */}
+      {error   && <p className="text-red-400 text-sm">{error}</p>}
+      {success && <p className="text-green-400 text-sm">{success}</p>}
+
       {/* Add form */}
       <form onSubmit={handleAdd} className="flex flex-col gap-3 bg-gray-900 p-5 rounded-xl">
-        <h2 className="font-semibold text-gray-300">הוסף מילה חדשה</h2>
+        <h2 className="font-semibold text-gray-300">הוסף מילה ידנית</h2>
         <div className="flex gap-3">
           <input
             value={newWord}
@@ -97,8 +189,6 @@ export default function AdminWordsPage() {
         >
           {isPending ? "מוסיף…" : "הוסף"}
         </button>
-        {error   && <p className="text-red-400 text-sm">{error}</p>}
-        {success && <p className="text-green-400 text-sm">{success}</p>}
       </form>
 
       {/* Upcoming words */}
@@ -131,7 +221,7 @@ function WordTable({
   onDelete:  (id: string, word: string) => void
   highlight?: boolean
 }) {
-  const today = new Date().toISOString().split("T")[0]
+  const today = todayStr()
   return (
     <table className="w-full text-sm">
       <thead>

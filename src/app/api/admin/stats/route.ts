@@ -14,7 +14,7 @@ export async function GET() {
   const service = createServiceClient()
   const today   = new Date().toISOString().split("T")[0]
 
-  const [wordRes, playsRes, usersRes, scheduledRes] = await Promise.all([
+  const [wordRes, playsRes, usersRes, scheduledRes, poolRes] = await Promise.all([
     // Today's word
     service.from("words").select("word").eq("source", "daily_global").eq("date", today).single(),
     // Today's plays
@@ -31,6 +31,12 @@ export async function GET() {
       .select("id", { count: "exact", head: true })
       .eq("source", "daily_global")
       .gte("date", today),
+    // Unscheduled word pool (date IS NULL)
+    service
+      .from("words")
+      .select("id", { count: "exact", head: true })
+      .eq("source", "daily_global")
+      .is("date", null),
   ])
 
   // Total plays ever
@@ -49,5 +55,6 @@ export async function GET() {
     totalUsers:     usersRes.count ?? 0,
     totalPlays:     totalPlays ?? 0,
     wordsScheduled: scheduledRes.count ?? 0,
+    poolRemaining:  poolRes.count ?? 0,
   })
 }
