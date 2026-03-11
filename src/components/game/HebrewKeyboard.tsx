@@ -71,8 +71,9 @@ export default function HebrewKeyboard({
 
     animatingEntry.guess.split("").forEach((rawLetter, i) => {
       const letter   = normalizeHebrew(rawLetter)
-      const newState = animatingEntry.result[i] as KeyState | undefined
-      if (!newState || newState === "empty" || newState === "tbd") return
+      const tileState = animatingEntry.result[i]
+      if (!tileState || tileState === "empty" || tileState === "tbd") return
+      const newState = tileState as KeyState
 
       timers.push(setTimeout(() => {
         setDisplayed(prev => {

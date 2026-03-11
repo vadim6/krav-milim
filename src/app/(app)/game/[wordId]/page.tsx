@@ -19,6 +19,7 @@ export default async function WordGamePage({ params }: Props) {
 
   if (!word) notFound()
 
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const { data: raw } = await supabase
     .from("game_results")
