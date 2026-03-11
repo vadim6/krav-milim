@@ -101,8 +101,8 @@ export default function AdminWordsPage() {
     }
   }
 
-  const upcoming = words.filter(w => w.date && w.date >= todayStr()).sort((a, b) => a.date!.localeCompare(b.date!))
-  const past     = words.filter(w => w.date && w.date < todayStr()).sort((a, b) => b.date!.localeCompare(a.date!))
+  const upcoming = words.filter(w => w.date && w.date >= todayStr()).sort((a, b) => (a.date ?? '').localeCompare(b.date ?? ''))
+  const past     = words.filter(w => w.date && w.date < todayStr()).sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
 
   const poolLow = poolRemaining !== null && poolRemaining < 30
 

@@ -1,0 +1,2 @@
+Run this command locally in the project root to populate the DB with daily words:
+export $(grep -v '^#' .env.local | xargs) && npx tsx scripts/import-words.ts word_lists/daily_words_candidates.txt
