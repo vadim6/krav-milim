@@ -1,0 +1,50 @@
+import { createClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/service"
+import GameBoard from "@/components/game/GameBoard"
+import { notFound } from "next/navigation"
+import type { GuessHistoryEntry, RevealedLetters } from "@/types/shared"
+
+interface Props {
+  params: Promise<{ wordId: string }>
+}
+
+export default async function WordGamePage({ params }: Props) {
+  const { wordId } = await params
+
+  const { data: word } = await createServiceClient()
+    .from("words")
+    .select("id, source")
+    .eq("id", wordId)
+    .single()
+
+  if (!word) notFound()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: raw } = await supabase
+    .from("game_results")
+    .select("id, solved, guesses, guess_history, revealed_letters, duration_seconds")
+    .eq("user_id", user!.id)
+    .eq("word_id", wordId)
+    .single()
+
+  const existing = raw
+    ? {
+        ...raw,
+        guess_history:    raw.guess_history    as unknown as GuessHistoryEntry[],
+        revealed_letters: raw.revealed_letters as unknown as RevealedLetters,
+      }
+    : null
+
+  const labels: Record<string, string> = {
+    nemesis:      "מילת הנמסיס",
+    chevre:       "מילת החבר׳ה",
+    daily_global: "מילת היום",
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-6">
+      <h1 className="text-2xl font-bold">{labels[word.source] ?? "שחק"}</h1>
+      <GameBoard wordId={wordId} existingResult={existing} />
+    </div>
+  )
+}

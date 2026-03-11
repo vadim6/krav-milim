@@ -1,26 +1,108 @@
 @import "tailwindcss";
 
+/* Make Tailwind's dark: utilities respond to [data-theme="dark"] on <html>
+   instead of the media query, so manual selection can override system prefs. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ─── Theme ────────────────────────────────────────────────── */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Tile colors */
+  --tile-correct:  #538d4e;  /* green  */
+  --tile-present:  #b59f3b;  /* yellow */
+  --tile-absent:   #3a3a3c;  /* dark grey */
+  --tile-empty:    transparent;
+  --tile-tbd:      transparent;
+
+  /* Tile border */
+  --tile-border-empty: #d3d6da;
+  --tile-border-tbd:   #878a8c;
+
+  /* Keyboard */
+  --key-bg:        #818384;
+  --key-text:      #ffffff;
+}
+
+/* Dark token overrides — applied by JS based on stored preference or system pref */
+[data-theme="dark"] {
+  --background: #121213;
+  --foreground: #ffffff;
+  --tile-border-empty: #3a3a3c;
+  --tile-border-tbd:   #565758;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-tile-correct: var(--tile-correct);
+  --color-tile-present: var(--tile-present);
+  --color-tile-absent:  var(--tile-absent);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Base RTL reset ───────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  direction: rtl;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Heebo", Arial, sans-serif;
+  min-height: 100dvh;
 }
+
+/* ─── Tile flip animation ──────────────────────────────────── */
+
+/*
+ * tile-flip uses a CSS custom property --flip-bg set inline on each tile.
+ * The color change happens at exactly 50% — when the tile is at -90deg and
+ * invisible — so the user never sees a color flash before the flip.
+ * animation-fill-mode: both holds the 0% (uncolored) state during the
+ * stagger delay so tiles stay neutral while waiting to flip.
+ */
+@keyframes tile-flip {
+  0%   { transform: rotateX(0deg);    }
+  50%  { transform: rotateX(-90deg);  }
+  100% { transform: rotateX(0deg);    }
+}
+
+@keyframes tile-pop {
+  0%   { transform: scale(1);    }
+  50%  { transform: scale(1.12); }
+  100% { transform: scale(1);    }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-4px); }
+  40%       { transform: translateX(4px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+.tile-flip {
+  animation: tile-flip 500ms ease forwards;
+}
+
+.tile-pop {
+  animation: tile-pop 100ms ease;
+}
+
+.row-shake {
+  animation: shake 500ms ease;
+}
+
+/* ─── Tile states ──────────────────────────────────────────── */
+.tile-correct { background-color: var(--tile-correct); border-color: var(--tile-correct); color: #fff; }
+.tile-present { background-color: var(--tile-present); border-color: var(--tile-present); color: #fff; }
+.tile-absent  { background-color: var(--tile-absent);  border-color: var(--tile-absent);  color: #fff; }
+.tile-tbd     { border-color: var(--tile-border-tbd); }
+.tile-empty   { border-color: var(--tile-border-empty); }

@@ -1,0 +1,52 @@
+import { createClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/service"
+import GameBoard from "@/components/game/GameBoard"
+import type { GuessHistoryEntry, RevealedLetters } from "@/types/shared"
+
+export default async function GamePage() {
+  const service = createServiceClient()
+
+  // Fetch today's global word id via service role (bypasses RLS on words table)
+  // The answer is never sent to the client — only the word id
+  const today = new Date().toISOString().split("T")[0]
+  const { data: word } = await service
+    .from("words")
+    .select("id")
+    .eq("source", "daily_global")
+    .eq("date", today)
+    .single()
+
+  if (!word) {
+    return (
+      <div className="text-center py-20 text-gray-400">
+        אין מילה יומית להיום. חזור מחר!
+      </div>
+    )
+  }
+
+  // Check if the user already played today (user client respects RLS on game_results)
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: raw } = await supabase
+    .from("game_results")
+    .select("id, solved, guesses, guess_history, revealed_letters, duration_seconds")
+    .eq("user_id", user!.id)
+    .eq("word_id", word.id)
+    .single()
+
+  // Supabase types JSONB columns as `Json`; cast to known shapes
+  const existing = raw
+    ? {
+        ...raw,
+        guess_history:    raw.guess_history    as unknown as GuessHistoryEntry[],
+        revealed_letters: raw.revealed_letters as unknown as RevealedLetters,
+      }
+    : null
+
+  return (
+    <div className="flex flex-col items-center gap-6">
+      <h1 className="text-2xl font-bold">מילת היום</h1>
+      <GameBoard wordId={word.id} existingResult={existing} />
+    </div>
+  )
+}
