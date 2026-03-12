@@ -107,7 +107,12 @@ export async function PUT(req: NextRequest) {
       .update({ date: targetDate })
       .eq("id", pick.id)
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) {
+      if (error.code === "23505") {
+        return NextResponse.json({ error: "כבר קיימת מילה לתאריך הזה" }, { status: 409 })
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
     return NextResponse.json({
       ok: true,
       message: action === "pick_today" ? "מילת היום נבחרה בהצלחה" : "מילת מחר נבחרה בהצלחה",

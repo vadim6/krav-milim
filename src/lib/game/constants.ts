@@ -6,18 +6,17 @@ export const TILE_FLIP_HALF = 250   // midpoint when tile is face-down; color re
 export const TILE_STAGGER   = 300   // delay between each successive tile's flip start
 
 /**
- * Hebrew keyboard rows — RTL, matching the standard Israeli QWERTY layout.
+ * Hebrew keyboard rows — RTL layout.
  * Only base forms (no sofiot). Each of the 22 base letters appears exactly once.
  *
- * Physical QWERTY correspondence (right→left per row):
- *   Row 1: P  O  I  U  Y  T  R  E  → פ מ נ ו ט א ר ק
- *   Row 2: K  J  H  G  F  D  S  A  → ל ח י ע כ ג ד ש
- *   Row 3: ,  M  V  C  X  Z        → ת צ ה ב ס ז
+ *   Row 1 (6): פ ו ט א ר ק
+ *   Row 2 (8): ל ח י ע כ ג ד ש
+ *   Row 3 (8): ת צ מ נ ה ב ס ז  + action keys
  */
 export const HEBREW_KEYBOARD_ROWS: string[][] = [
-  ["פ", "מ", "נ", "ו", "ט", "א", "ר", "ק"],
+  ["פ", "ו", "ט", "א", "ר", "ק"],
   ["ל", "ח", "י", "ע", "כ", "ג", "ד", "ש"],
-  ["ת", "צ", "ה", "ב", "ס", "ז"],
+  ["ת", "צ", "מ", "נ", "ה", "ב", "ס", "ז"],
 ]
 
 /** Virtual key codes for the on-screen keyboard */

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createServiceClient } from "@/lib/supabase/service"
 import { evaluateGuess, buildRevealedLetters } from "@/lib/game/engine"
 import { isHebrewWord, normalizeWord } from "@/lib/game/hebrew"
+import { isValidWord } from "@/lib/game/wordlist"
 import { WORD_LENGTH, MAX_GUESSES } from "@/lib/game/constants"
 import type { GuessHistoryEntry, TileState } from "@/types/shared"
 
@@ -41,6 +42,9 @@ export async function POST(request: Request) {
   }
   if (normalizeWord(guess).length !== WORD_LENGTH || !isHebrewWord(guess)) {
     return NextResponse.json({ error: "Invalid guess" }, { status: 422 })
+  }
+  if (!isValidWord(guess)) {
+    return NextResponse.json({ error: "Not in word list" }, { status: 422 })
   }
   if (previousHistory.length >= MAX_GUESSES) {
     return NextResponse.json({ error: "Game already over" }, { status: 409 })

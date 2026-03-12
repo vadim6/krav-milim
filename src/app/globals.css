@@ -88,6 +88,17 @@ body {
   80%       { transform: translateX(4px); }
 }
 
+@keyframes fade-in-out {
+  0%   { opacity: 0; transform: translateY(-6px); }
+  15%  { opacity: 1; transform: translateY(0); }
+  75%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+
+.animate-fade-in-out {
+  animation: fade-in-out 2.5s ease forwards;
+}
+
 .tile-flip {
   animation: tile-flip 500ms ease forwards;
 }
