@@ -6,6 +6,7 @@ interface Props {
   status:       "won" | "lost"
   guessCount:   number
   guessHistory: GuessHistoryEntry[]
+  answer:       string | null
 }
 
 const TILE_EMOJI: Record<string, string> = {
@@ -16,7 +17,7 @@ const TILE_EMOJI: Record<string, string> = {
   tbd:     "⬜",
 }
 
-export default function GameStatus({ status, guessCount, guessHistory }: Props) {
+export default function GameStatus({ status, guessCount, guessHistory, answer }: Props) {
   const shareText =
     `קרב מילים — ${status === "won" ? `${guessCount}/6` : "X/6"}\n\n` +
     guessHistory
@@ -44,6 +45,11 @@ export default function GameStatus({ status, guessCount, guessHistory }: Props) 
         <>
           <p className="text-3xl">😔</p>
           <p className="text-xl font-bold">הפסדת הפעם</p>
+          {answer && (
+            <p className="text-sm text-gray-500">
+              המילה הייתה: <span className="font-bold text-foreground">{answer}</span>
+            </p>
+          )}
         </>
       )}
 

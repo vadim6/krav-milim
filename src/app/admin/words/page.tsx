@@ -196,7 +196,7 @@ export default function AdminWordsPage() {
         <h2 className="font-semibold text-gray-300 mb-3">מילים קרובות ({upcoming.length})</h2>
         {upcoming.length === 0
           ? <p className="text-gray-500 text-sm">אין מילים מתוזמנות</p>
-          : <WordTable rows={upcoming} onDelete={handleDelete} highlight />
+          : <WordTable rows={upcoming} onDelete={handleDelete} highlight hideWords />
         }
       </section>
 
@@ -215,13 +215,25 @@ export default function AdminWordsPage() {
 function WordTable({
   rows,
   onDelete,
-  highlight = false,
+  highlight  = false,
+  hideWords  = false,
 }: {
-  rows:      WordRow[]
-  onDelete:  (id: string, word: string) => void
+  rows:       WordRow[]
+  onDelete:   (id: string, word: string) => void
   highlight?: boolean
+  hideWords?: boolean
 }) {
   const today = todayStr()
+  const [revealed, setRevealed] = useState<Set<string>>(new Set())
+
+  function toggleReveal(id: string) {
+    setRevealed(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
   return (
     <table className="w-full text-sm">
       <thead>
@@ -232,27 +244,64 @@ function WordTable({
         </tr>
       </thead>
       <tbody>
-        {rows.map(w => (
-          <tr
-            key={w.id}
-            className={`border-b border-gray-800/50 ${highlight && w.date === today ? "bg-yellow-900/20" : ""}`}
-          >
-            <td className="py-2 font-bold text-base tracking-wider">{w.word}</td>
-            <td className="py-2 text-gray-400">
-              {w.date ?? "—"}
-              {highlight && w.date === today && <span className="mr-2 text-yellow-400 text-xs">היום</span>}
-            </td>
-            <td className="py-2 text-left">
-              <button
-                onClick={() => onDelete(w.id, w.word)}
-                className="text-gray-600 hover:text-red-400 transition-colors text-xs"
-              >
-                מחק
-              </button>
-            </td>
-          </tr>
-        ))}
+        {rows.map(w => {
+          const isRevealed = !hideWords || revealed.has(w.id)
+          return (
+            <tr
+              key={w.id}
+              className={`border-b border-gray-800/50 ${highlight && w.date === today ? "bg-yellow-900/20" : ""}`}
+            >
+              <td className="py-2 font-bold text-base tracking-wider">
+                <span className="inline-flex items-center gap-2">
+                  <span className={isRevealed ? "" : "tracking-[0.3em] text-gray-600 select-none"}>
+                    {isRevealed ? w.word : "•••••"}
+                  </span>
+                  {hideWords && (
+                    <button
+                      onClick={() => toggleReveal(w.id)}
+                      aria-label={isRevealed ? "הסתר" : "הצג"}
+                      className="text-gray-600 hover:text-gray-300 transition-colors"
+                    >
+                      {isRevealed ? <EyeOffIcon /> : <EyeIcon />}
+                    </button>
+                  )}
+                </span>
+              </td>
+              <td className="py-2 text-gray-400">
+                {w.date ?? "—"}
+                {highlight && w.date === today && <span className="mr-2 text-yellow-400 text-xs">היום</span>}
+              </td>
+              <td className="py-2 text-left">
+                <button
+                  onClick={() => onDelete(w.id, w.word)}
+                  className="text-gray-600 hover:text-red-400 transition-colors text-xs"
+                >
+                  מחק
+                </button>
+              </td>
+            </tr>
+          )
+        })}
       </tbody>
     </table>
+  )
+}
+
+function EyeIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  )
+}
+
+function EyeOffIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
   )
 }

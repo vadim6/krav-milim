@@ -172,7 +172,7 @@ export default function NemesisPage() {
       </section>
 
       {/* Challenge form */}
-      <section className="flex flex-col gap-3 rounded-xl border border-gray-700 p-5">
+      <section className="flex flex-col gap-3 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
         <h2 className="font-semibold">אתגר שחקן</h2>
         <div className="relative">
           <input
@@ -180,16 +180,16 @@ export default function NemesisPage() {
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="חפש שם משתמש…"
-            className="w-full rounded-lg border border-gray-600 bg-gray-800 px-4 py-2.5 text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500"
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2.5 text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-500"
           />
           {suggestions.length > 0 && (
-            <ul className="absolute top-full mt-1 w-full rounded-lg border border-gray-600 bg-gray-800 shadow-lg z-10 overflow-hidden">
+            <ul className="absolute top-full mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-lg z-10 overflow-hidden">
               {suggestions.map(u => (
                 <li key={u.id}>
                   <button
                     onClick={() => sendChallenge(u.username)}
                     disabled={challenging}
-                    className="w-full px-4 py-2.5 text-right text-sm hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    className="w-full px-4 py-2.5 text-right text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
                   >
                     {u.username}
                   </button>

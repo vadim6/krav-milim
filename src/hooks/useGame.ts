@@ -34,6 +34,8 @@ function initialState(
       startTime:       null,
       isRevealing:     false,
       invalidGuess:    false,
+      notInWordList:   false,
+      answer:          null,
     }
   }
   return {
@@ -45,6 +47,8 @@ function initialState(
     startTime:       null,
     isRevealing:     false,
     invalidGuess:    false,
+    notInWordList:   false,
+    answer:          null,
   }
 }
 
@@ -75,6 +79,7 @@ function reducer(state: GameState, action: GameAction): GameState {
         revealedLetters: newRevealed,
         gameStatus:      solved ? "won" : lost ? "lost" : "playing",
         isRevealing:     true,
+        answer:          action.answer ?? state.answer,
       }
     }
 
@@ -83,6 +88,12 @@ function reducer(state: GameState, action: GameAction): GameState {
 
     case "CLEAR_INVALID":
       return { ...state, invalidGuess: false }
+
+    case "SET_NOT_IN_WORD_LIST":
+      return { ...state, notInWordList: true }
+
+    case "CLEAR_NOT_IN_WORD_LIST":
+      return { ...state, notInWordList: false }
 
     case "SET_REVEALING":
       return { ...state, isRevealing: action.value }
@@ -131,15 +142,18 @@ export function useGame(wordId: string, existing: ExistingResult | null) {
 
     if (!res.ok) {
       const { error } = await res.json()
-      if (error === "Invalid guess") {
+      if (error === "Not in word list") {
+        dispatch({ type: "SET_NOT_IN_WORD_LIST" })
+        setTimeout(() => dispatch({ type: "CLEAR_NOT_IN_WORD_LIST" }), 2500)
+      } else if (error === "Invalid guess") {
         dispatch({ type: "SET_INVALID" })
         setTimeout(() => dispatch({ type: "CLEAR_INVALID" }), 500)
       }
       return
     }
 
-    const { result } = await res.json()
-    dispatch({ type: "SUBMIT_GUESS", result })
+    const { result, answer } = await res.json()
+    dispatch({ type: "SUBMIT_GUESS", result, answer })
 
     // Clear isRevealing after animation completes (300ms per tile × 5 + buffer)
     setTimeout(

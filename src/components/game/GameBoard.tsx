@@ -37,7 +37,15 @@ export default function GameBoard({ wordId, existingResult }: Props) {
   return (
     <div className="flex flex-col items-center gap-4 w-full">
       {/* Grid */}
-      <div className="flex flex-col gap-1" role="grid" aria-label="לוח המשחק">
+      <div className="relative flex flex-col gap-1" role="grid" aria-label="לוח המשחק">
+        {/* "Not in word list" toast — floats over the top of the board */}
+        {state.notInWordList && (
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 z-50 pointer-events-none">
+            <div className="rounded-lg bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 px-5 py-3 text-sm font-semibold shadow-lg animate-fade-in-out whitespace-nowrap">
+              המילה אינה מופיעה ברשימת המילים
+            </div>
+          </div>
+        )}
         {/* Completed rows */}
         {state.guesses.map((entry, i) => (
           <GameRow
@@ -50,7 +58,7 @@ export default function GameBoard({ wordId, existingResult }: Props) {
 
         {/* Current input row */}
         {state.gameStatus === "playing" && (
-          <GameRow current={state.currentGuess} invalid={state.invalidGuess} />
+          <GameRow current={state.currentGuess} invalid={state.invalidGuess || state.notInWordList} />
         )}
 
         {/* Empty rows */}
@@ -65,6 +73,7 @@ export default function GameBoard({ wordId, existingResult }: Props) {
           status={state.gameStatus}
           guessCount={state.guesses.length}
           guessHistory={state.guesses}
+          answer={state.answer}
         />
       )}
 

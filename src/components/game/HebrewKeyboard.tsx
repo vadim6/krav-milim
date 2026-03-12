@@ -31,7 +31,7 @@ const keyColors: Record<KeyState, string> = {
   unused:  "bg-[var(--key-bg)]       text-[var(--key-text)]",
 }
 
-const baseKey = "flex items-center justify-center rounded h-14 text-base font-bold hover:opacity-80 active:scale-95 transition select-none cursor-pointer"
+const baseKey = "flex items-center justify-center rounded-lg h-14 text-base font-bold hover:opacity-80 active:scale-95 transition select-none cursor-pointer"
 
 export default function HebrewKeyboard({
   revealedLetters,
@@ -104,16 +104,16 @@ export default function HebrewKeyboard({
   }, [isRevealing, animatingEntry, prevRevealedLetters, revealedLetters])
 
   return (
-    <div className="flex flex-col gap-1.5 w-full max-w-[500px]" dir="rtl">
+    <div className="flex flex-col gap-2 w-full max-w-[500px]" dir="rtl">
       {HEBREW_KEYBOARD_ROWS.map((row, ri) => (
-        <div key={ri} className="flex justify-center gap-1">
+        <div key={ri} className="flex justify-center gap-1.5">
           {ri === 2 && (
             <button
-              onClick={() => onKey(KEY_ENTER)}
-              className={`${baseKey} flex-[1.6] bg-gray-300 dark:bg-gray-600 text-sm`}
-              aria-label="Enter"
+              onClick={() => onKey(KEY_DELETE)}
+              className={`${baseKey} flex-[1.6] bg-gray-300 dark:bg-gray-600 text-lg`}
+              aria-label="מחק"
             >
-              ↵ Enter
+              ⌫
             </button>
           )}
 
@@ -130,11 +130,11 @@ export default function HebrewKeyboard({
 
           {ri === 2 && (
             <button
-              onClick={() => onKey(KEY_DELETE)}
+              onClick={() => onKey(KEY_ENTER)}
               className={`${baseKey} flex-[1.6] bg-gray-300 dark:bg-gray-600 text-sm`}
-              aria-label="מחק"
+              aria-label="Enter"
             >
-              ⌫
+              ↵ Enter
             </button>
           )}
         </div>
