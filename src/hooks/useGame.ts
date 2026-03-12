@@ -170,6 +170,11 @@ export function useGame(wordId: string, existing: ExistingResult | null) {
     (action: GameAction) => {
       if (action.type === "SUBMIT_GUESS") {
         submitGuess()
+      } else if (
+        isSubmittingRef.current &&
+        (action.type === "ADD_LETTER" || action.type === "DELETE_LETTER")
+      ) {
+        return
       } else {
         dispatch(action)
       }
