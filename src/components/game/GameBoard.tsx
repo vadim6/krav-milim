@@ -1,10 +1,13 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useGame } from "@/hooks/useGame"
 import GameRow from "./GameRow"
 import HebrewKeyboard from "./HebrewKeyboard"
 import GameStatus from "./GameStatus"
 import type { GuessHistoryEntry, RevealedLetters } from "@/types/shared"
+import type { StatusText } from "@/lib/game/statusTexts"
+import { WIN_TEXTS, LOSS_TEXTS } from "@/lib/game/statusTexts"
 import { MAX_GUESSES } from "@/lib/game/constants"
 import { buildRevealedLetters } from "@/lib/game/engine"
 
@@ -24,6 +27,22 @@ interface Props {
 
 export default function GameBoard({ wordId, existingResult }: Props) {
   const { state, dispatch } = useGame(wordId, existingResult)
+  const [statusDismissed, setStatusDismissed] = useState(false)
+  const [statusText, setStatusText] = useState<StatusText | null>(null)
+
+  useEffect(() => {
+    if (state.gameStatus === "playing") return
+    const arr = state.gameStatus === "won" ? WIN_TEXTS : LOSS_TEXTS
+    const lsKey = `krav-milim-status-${wordId}`
+    const stored = localStorage.getItem(lsKey)
+    if (stored !== null) {
+      const idx = parseInt(stored, 10)
+      if (!isNaN(idx) && idx < arr.length) { setStatusText(arr[idx]); return }
+    }
+    const idx = Math.floor(Math.random() * arr.length)
+    localStorage.setItem(lsKey, String(idx))
+    setStatusText(arr[idx])
+  }, [state.gameStatus, wordId])
 
   // When revealing, compute the keyboard's "before" state so keys can stagger in sync with tiles
   const animatingEntry      = state.isRevealing ? state.guesses[state.guesses.length - 1] : undefined
@@ -65,17 +84,19 @@ export default function GameBoard({ wordId, existingResult }: Props) {
         {Array.from({ length: emptyRowCount }).map((_, i) => (
           <GameRow key={`empty-${i}`} />
         ))}
-      </div>
 
-      {/* Status overlay */}
-      {state.gameStatus !== "playing" && (
-        <GameStatus
-          status={state.gameStatus}
-          guessCount={state.guesses.length}
-          guessHistory={state.guesses}
-          answer={state.answer}
-        />
-      )}
+        {/* Status overlay — rendered inside the grid so backdrop covers only the board */}
+        {state.gameStatus !== "playing" && !statusDismissed && statusText && (
+          <GameStatus
+            status={state.gameStatus}
+            guessCount={state.guesses.length}
+            guessHistory={state.guesses}
+            answer={state.answer}
+            statusText={statusText}
+            onDismiss={() => setStatusDismissed(true)}
+          />
+        )}
+      </div>
 
       {/* Keyboard */}
       <HebrewKeyboard

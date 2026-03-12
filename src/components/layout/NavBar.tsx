@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import ThemeToggle from "./ThemeToggle"
+import AboutButton from "./AboutButton"
 
 export default async function NavBar() {
   const supabase = await createClient()
@@ -41,6 +42,7 @@ export default async function NavBar() {
             {username ?? "פרופיל"}
           </Link>
           <ThemeToggle />
+          <AboutButton />
         </div>
       </nav>
     </header>
