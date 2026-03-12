@@ -48,6 +48,8 @@ export default function HebrewKeyboard({
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.ctrlKey || e.metaKey || e.altKey) return
+      // If a keyboard button is focused, its click handler will fire — skip here to avoid double dispatch
+      if (document.activeElement instanceof HTMLButtonElement) return
       if (e.key === "Enter")     { onKey(KEY_ENTER);  return }
       if (e.key === "Backspace") { onKey(KEY_DELETE); return }
       if (e.key.length === 1)    { onKey(normalizeHebrew(e.key)) }

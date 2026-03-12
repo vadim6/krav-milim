@@ -23,11 +23,18 @@ const TILE_EMOJI: Record<string, string> = {
 export default function GameStatus({ status, guessCount, guessHistory, answer, statusText, onDismiss }: Props) {
   const subtitle = statusText.subtitle?.replace("{guesses}", String(guessCount))
 
+  const dateStr = new Date().toLocaleDateString("he-IL", { day: "numeric", month: "numeric", year: "numeric" })
+  const attemptsLine = status === "won"
+    ? `${guessCount} מתוך 6 ניסיונות`
+    : `6 מתוך 6 ניסיונות`
+
   const shareText =
-    `קרב מילים — ${status === "won" ? `${guessCount}/6` : "X/6"}\n\n` +
+    `קרב מילים — ${dateStr}\n\n` +
+    `${attemptsLine}\n\n` +
     guessHistory
       .map((row) => [...row.result].reverse().map((s: TileState) => TILE_EMOJI[s] ?? "⬛").join(""))
-      .join("\n")
+      .join("\n") +
+    `\n\nhttps://krav-milim.vercel.app/game`
 
   async function handleShare() {
     if (navigator.share) {
