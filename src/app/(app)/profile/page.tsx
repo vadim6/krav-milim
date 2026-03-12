@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
+import UsernameEditor from "@/components/profile/UsernameEditor"
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -7,7 +8,7 @@ export default async function ProfilePage() {
   if (!user) redirect("/login")
 
   const [{ data: profile }, { data: alltimeRow }] = await Promise.all([
-    supabase.from("users").select("username, avatar_url, created_at").eq("id", user.id).single(),
+    supabase.from("users").select("username, avatar_url, created_at, username_changed_at").eq("id", user.id).single(),
     supabase.from("leaderboard_alltime").select("*").eq("user_id", user.id).single(),
   ])
 
@@ -25,7 +26,10 @@ export default async function ProfilePage() {
           {profile?.username?.[0]?.toUpperCase()}
         </div>
         <div>
-          <h1 className="text-2xl font-bold">{profile?.username}</h1>
+          <UsernameEditor
+            initialUsername={profile?.username ?? ""}
+            changedAt={profile?.username_changed_at ?? null}
+          />
           <p className="text-sm text-gray-400">{user.email}</p>
         </div>
       </div>
