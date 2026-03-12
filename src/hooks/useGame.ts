@@ -1,6 +1,6 @@
 "use client"
 
-import { useReducer, useCallback } from "react"
+import { useReducer, useCallback, useRef } from "react"
 import type { GameState, GameAction } from "@/types/game"
 import type { GuessHistoryEntry, RevealedLetters, TileState } from "@/types/shared"
 import { buildRevealedLetters } from "@/lib/game/engine"
@@ -120,8 +120,10 @@ export function useGame(wordId: string, existing: ExistingResult | null) {
   const [state, dispatch] = useReducer(reducer, null, () =>
     initialState(wordId, existing),
   )
+  const isSubmittingRef = useRef(false)
 
   const submitGuess = useCallback(async () => {
+    if (isSubmittingRef.current) return
     const guess = state.currentGuess
     if (normalizeWord(guess).length !== WORD_LENGTH) {
       dispatch({ type: "SET_INVALID" })
@@ -129,6 +131,7 @@ export function useGame(wordId: string, existing: ExistingResult | null) {
       return
     }
 
+    isSubmittingRef.current = true
     const res = await fetch("/api/game/submit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -141,6 +144,7 @@ export function useGame(wordId: string, existing: ExistingResult | null) {
     })
 
     if (!res.ok) {
+      isSubmittingRef.current = false
       const { error } = await res.json()
       if (error === "Not in word list") {
         dispatch({ type: "SET_NOT_IN_WORD_LIST" })
@@ -156,10 +160,10 @@ export function useGame(wordId: string, existing: ExistingResult | null) {
     dispatch({ type: "SUBMIT_GUESS", result, answer })
 
     // Clear isRevealing after animation completes (300ms per tile × 5 + buffer)
-    setTimeout(
-      () => dispatch({ type: "SET_REVEALING", value: false }),
-      WORD_LENGTH * 300 + 500,
-    )
+    setTimeout(() => {
+      dispatch({ type: "SET_REVEALING", value: false })
+      isSubmittingRef.current = false
+    }, WORD_LENGTH * 300 + 500)
   }, [state, wordId])
 
   const handleDispatch = useCallback(

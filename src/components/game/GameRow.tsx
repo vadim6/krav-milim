@@ -29,8 +29,9 @@ export default function GameRow({ entry, current = "", invalid, revealed = false
   const tiles: Array<{ letter: string; state: TileState }> = []
 
   if (entry) {
+    const displayEntry = applyFinalForm(entry.guess)
     for (let i = 0; i < WORD_LENGTH; i++) {
-      tiles.push({ letter: entry.guess[i] ?? "", state: entry.result[i] ?? "absent" })
+      tiles.push({ letter: displayEntry[i] ?? "", state: entry.result[i] ?? "absent" })
     }
   } else {
     for (let i = 0; i < WORD_LENGTH; i++) {
