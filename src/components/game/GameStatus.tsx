@@ -26,7 +26,7 @@ export default function GameStatus({ status, guessCount, guessHistory, answer, s
   const shareText =
     `קרב מילים — ${status === "won" ? `${guessCount}/6` : "X/6"}\n\n` +
     guessHistory
-      .map((row) => row.result.map((s: TileState) => TILE_EMOJI[s] ?? "⬛").join(""))
+      .map((row) => [...row.result].reverse().map((s: TileState) => TILE_EMOJI[s] ?? "⬛").join(""))
       .join("\n")
 
   async function handleShare() {
