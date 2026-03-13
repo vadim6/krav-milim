@@ -109,13 +109,23 @@ export default function HebrewKeyboard({
     <div className="flex flex-col gap-2 w-full max-w-[500px]" dir="rtl">
       {HEBREW_KEYBOARD_ROWS.map((row, ri) => (
         <div key={ri} className="flex justify-center gap-1.5">
-          {ri === 2 && (
+          {ri === 0 && (
             <button
               onClick={() => onKey(KEY_DELETE)}
               className={`${baseKey} flex-[1.6] bg-gray-300 dark:bg-gray-600 text-lg`}
               aria-label="מחק"
             >
               ⌫
+            </button>
+          )}
+
+          {ri === 2 && (
+            <button
+              onClick={() => onKey(KEY_ENTER)}
+              className={`${baseKey} flex-[1.6] bg-gray-300 dark:bg-gray-600 text-sm`}
+              aria-label="Enter"
+            >
+              ↵ Enter
             </button>
           )}
 
@@ -129,16 +139,6 @@ export default function HebrewKeyboard({
               {letter}
             </button>
           ))}
-
-          {ri === 2 && (
-            <button
-              onClick={() => onKey(KEY_ENTER)}
-              className={`${baseKey} flex-[1.6] bg-gray-300 dark:bg-gray-600 text-sm`}
-              aria-label="Enter"
-            >
-              ↵ Enter
-            </button>
-          )}
         </div>
       ))}
     </div>
