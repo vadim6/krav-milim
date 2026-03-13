@@ -17,16 +17,22 @@ function daysLeft(changedAt: string | null): number {
 }
 
 export default function UsernameEditor({ initialUsername, changedAt }: Props) {
-  const [editing, setEditing]     = useState(false)
-  const [username, setUsername]   = useState(initialUsername)
-  const [input, setInput]         = useState(initialUsername)
-  const [checking, setChecking]   = useState(false)
-  const [available, setAvailable] = useState<boolean | null>(null)
-  const [saving, setSaving]       = useState(false)
-  const [error, setError]         = useState<string | null>(null)
+  const [editing, setEditing]         = useState(false)
+  const [username, setUsername]       = useState(initialUsername)
+  const [input, setInput]             = useState(initialUsername)
+  const [checking, setChecking]       = useState(false)
+  const [available, setAvailable]     = useState<boolean | null>(null)
+  const [saving, setSaving]           = useState(false)
+  const [error, setError]             = useState<string | null>(null)
+  const [showTooltip, setShowTooltip] = useState(false)
 
   const cooldown = daysLeft(changedAt)
   const canEdit  = cooldown === 0
+
+  function handleLockedClick() {
+    setShowTooltip(true)
+    setTimeout(() => setShowTooltip(false), 3000)
+  }
 
   // Debounced availability check
   useEffect(() => {
@@ -131,19 +137,27 @@ export default function UsernameEditor({ initialUsername, changedAt }: Props) {
   return (
     <div className="flex items-center gap-2">
       <h1 className="text-2xl font-bold">{username}</h1>
-      {canEdit ? (
+      <div className="relative">
         <button
-          onClick={startEdit}
-          title="שנה שם משתמש"
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+          onClick={canEdit ? startEdit : handleLockedClick}
+          title={canEdit ? "שנה שם משתמש" : undefined}
+          className={`transition-colors ${
+            canEdit
+              ? "text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              : "text-gray-300 dark:text-gray-600 cursor-default"
+          }`}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
           </svg>
         </button>
-      ) : (
-        <span className="text-xs text-gray-400">ניתן לשנות בעוד {cooldown} ימים</span>
-      )}
+        {showTooltip && (
+          <div className="absolute bottom-full mb-1.5 right-0 whitespace-nowrap rounded-md bg-gray-800 dark:bg-gray-700 px-2.5 py-1 text-xs text-white shadow-md">
+            ניתן לשנות בעוד {cooldown} ימים
+            <span className="absolute top-full right-2 border-4 border-transparent border-t-gray-800 dark:border-t-gray-700" />
+          </div>
+        )}
+      </div>
     </div>
   )
 }

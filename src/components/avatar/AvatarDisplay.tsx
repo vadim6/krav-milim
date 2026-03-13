@@ -23,22 +23,26 @@ const BG_COLORS = [
 
 export default function AvatarDisplay({ config, username, size = 40, className = "" }: Props) {
   const dataUri = useMemo(() => {
-    if (!config) return null
-    const styleEntry = AVATAR_STYLES.find((s) => s.id === config.style)
-    if (!styleEntry) return null
     try {
-      const avatar = createAvatar(styleEntry.module, {
-        size,
-        ...resolveOptions(config.options),
-      })
-      return avatar.toDataUri()
+      if (config) {
+        const styleEntry = AVATAR_STYLES.find((s) => s.id === config.style)
+        if (!styleEntry) throw new Error("unknown style")
+        return createAvatar(styleEntry.module, {
+          size,
+          ...resolveOptions(config.options),
+        }).toDataUri()
+      }
+      // No config — generate a deterministic avatar seeded from the username
+      const FALLBACK_BG = ["b6e3f4","c0aede","d1d4f9","ffd5dc","ffdfbf","a8e6cf","ffd3b6","dcedc1"]
+      const bg = FALLBACK_BG[username.charCodeAt(0) % FALLBACK_BG.length]
+      const fallbackStyle = AVATAR_STYLES[0]
+      return createAvatar(fallbackStyle.module, { seed: username, size, backgroundColor: [bg] }).toDataUri()
     } catch {
       return null
     }
-  }, [config, size])
+  }, [config, username, size])
 
-  const colorClass = BG_COLORS[(username.charCodeAt(0) ?? 0) % BG_COLORS.length]
-  const sizeStyle  = { width: size, height: size }
+  const sizeStyle = { width: size, height: size }
 
   if (dataUri) {
     return (
@@ -53,6 +57,8 @@ export default function AvatarDisplay({ config, username, size = 40, className =
     )
   }
 
+  // Ultimate fallback: letter circle
+  const colorClass = BG_COLORS[(username.charCodeAt(0) ?? 0) % BG_COLORS.length]
   return (
     <div
       style={sizeStyle}

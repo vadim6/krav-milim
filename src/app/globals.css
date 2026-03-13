@@ -31,6 +31,7 @@
   --foreground: #ffffff;
   --tile-border-empty: #3a3a3c;
   --tile-border-tbd:   #565758;
+  color-scheme: dark;
 }
 
 @theme inline {
