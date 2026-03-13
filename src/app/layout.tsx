@@ -9,8 +9,24 @@ const heebo = Heebo({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://krav-milim.com"),
   title: "קרב מילים",
-  description: "משחק מילים תחרותי בעברית",
+  description: "משחק ניחוש מילים תחרותי בעברית — מילה יומית אחת לכולם",
+  openGraph: {
+    title: "קרב מילים",
+    description: "משחק ניחוש מילים תחרותי בעברית — מילה יומית אחת לכולם",
+    url: "https://krav-milim.com",
+    siteName: "קרב מילים",
+    images: [{ url: "/og-image.png", width: 400, height: 218, alt: "קרב מילים" }],
+    locale: "he_IL",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "קרב מילים",
+    description: "משחק ניחוש מילים תחרותי בעברית — מילה יומית אחת לכולם",
+    images: ["/og-image.png"],
+  },
 }
 
 export default function RootLayout({

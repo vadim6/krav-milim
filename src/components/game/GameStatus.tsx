@@ -34,7 +34,7 @@ export default function GameStatus({ status, guessCount, guessHistory, answer, s
     guessHistory
       .map((row) => [...row.result].reverse().map((s: TileState) => TILE_EMOJI[s] ?? "⬛").join(""))
       .join("\n") +
-    `\n\nhttps://krav-milim.vercel.app/game`
+    `\n\nhttps://krav-milim.com/game`
 
   async function handleShare() {
     if (navigator.share) {
