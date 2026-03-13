@@ -111,6 +111,15 @@ body {
   animation: shake 500ms ease;
 }
 
+/* ─── Scrollbar ────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #4b5563; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
 /* ─── Tile states ──────────────────────────────────────────── */
 .tile-correct { background-color: var(--tile-correct); border-color: var(--tile-correct); color: #fff; }
 .tile-present { background-color: var(--tile-present); border-color: var(--tile-present); color: #fff; }

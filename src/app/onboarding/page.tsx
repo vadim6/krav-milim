@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { randomAvatarConfig } from "@/lib/avatar/random"
 
 // useSearchParams must be inside a Suspense boundary for static rendering
 export default function OnboardingPage() {
@@ -53,7 +54,8 @@ function OnboardingForm() {
 
     const { error } = await supabase
       .from("users")
-      .update({ username })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update({ username, avatar_config: randomAvatarConfig() as any })
       .eq("id", user.id)
 
     if (error) {

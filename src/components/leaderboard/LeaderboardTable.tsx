@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import type { LeaderboardGlobalRow, LeaderboardAlltimeRow } from "@/types/shared"
+import AvatarDisplay from "@/components/avatar/AvatarDisplay"
+import type { AvatarConfig } from "@/lib/avatar/styles"
 
 interface Props {
   daily:   LeaderboardGlobalRow[]
@@ -44,7 +46,16 @@ export default function LeaderboardTable({ daily, alltime }: Props) {
             ? daily.map((row) => (
                 <tr key={row.user_id} className="border-b last:border-0">
                   <td className="py-2 text-gray-400">{row.rank}</td>
-                  <td className="py-2 font-medium">{row.username}</td>
+                  <td className="py-2">
+                    <div className="flex items-center gap-2">
+                      <AvatarDisplay
+                        config={row.avatar_config as AvatarConfig | null}
+                        username={row.username ?? ""}
+                        size={28}
+                      />
+                      <span className="font-medium">{row.username}</span>
+                    </div>
+                  </td>
                   <td className="py-2">{row.solved ? row.guesses : "X"}</td>
                   <td className="py-2 text-gray-400">
                     {row.duration_seconds != null
@@ -56,7 +67,16 @@ export default function LeaderboardTable({ daily, alltime }: Props) {
             : alltime.map((row) => (
                 <tr key={row.user_id} className="border-b last:border-0">
                   <td className="py-2 text-gray-400">{row.rank}</td>
-                  <td className="py-2 font-medium">{row.username}</td>
+                  <td className="py-2">
+                    <div className="flex items-center gap-2">
+                      <AvatarDisplay
+                        config={row.avatar_config as AvatarConfig | null}
+                        username={row.username ?? ""}
+                        size={28}
+                      />
+                      <span className="font-medium">{row.username}</span>
+                    </div>
+                  </td>
                   <td className="py-2">{row.avg_guesses}</td>
                   <td className="py-2">{row.total_wins}</td>
                   <td className="py-2 text-gray-400">

@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import UsernameEditor from "@/components/profile/UsernameEditor"
+import AvatarDisplay from "@/components/avatar/AvatarDisplay"
+import AvatarBuilder from "@/components/avatar/AvatarBuilder"
+import type { AvatarConfig } from "@/lib/avatar/styles"
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -8,7 +11,7 @@ export default async function ProfilePage() {
   if (!user) redirect("/login")
 
   const [{ data: profile }, { data: alltimeRow }] = await Promise.all([
-    supabase.from("users").select("username, avatar_url, created_at, username_changed_at").eq("id", user.id).single(),
+    supabase.from("users").select("username, avatar_url, created_at, username_changed_at, avatar_config").eq("id", user.id).single(),
     supabase.from("leaderboard_alltime").select("*").eq("user_id", user.id).single(),
   ])
 
@@ -19,11 +22,18 @@ export default async function ProfilePage() {
     redirect("/")
   }
 
+  const avatarConfig = profile?.avatar_config as AvatarConfig | null
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <div className="h-16 w-16 rounded-full bg-green-200 flex items-center justify-center text-2xl font-bold text-green-700">
-          {profile?.username?.[0]?.toUpperCase()}
+        <div className="relative group">
+          <AvatarDisplay
+            config={avatarConfig}
+            username={profile?.username ?? ""}
+            size={64}
+          />
+          <AvatarBuilder initialConfig={avatarConfig} username={profile?.username ?? ""} />
         </div>
         <div>
           <UsernameEditor
