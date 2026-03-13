@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
+import AvatarDisplay from "@/components/avatar/AvatarDisplay"
+import type { AvatarConfig } from "@/lib/avatar/styles"
 
 interface Props {
   params: Promise<{ groupId: string }>
@@ -17,7 +19,7 @@ export default async function ChevreGroupPage({ params }: Props) {
       .single(),
     supabase
       .from("chevre_members")
-      .select("user_id, role, users(username, avatar_url)")
+      .select("user_id, role, users(username, avatar_config)")
       .eq("group_id", groupId),
     supabase
       .from("chevre_scores")
@@ -52,12 +54,10 @@ export default async function ChevreGroupPage({ params }: Props) {
       <div className="space-y-2">
         <h2 className="font-semibold">חברי הקבוצה ({members?.length ?? 0})</h2>
         {members?.map((m) => {
-          const u = (m.users as unknown) as { username: string; avatar_url: string | null } | null
+          const u = (m.users as unknown) as { username: string; avatar_config: AvatarConfig | null } | null
           return (
             <div key={m.user_id} className="flex items-center gap-3 py-2 border-b last:border-0">
-              <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold">
-                {u?.username?.[0]?.toUpperCase()}
-              </div>
+              <AvatarDisplay config={u?.avatar_config ?? null} username={u?.username ?? ""} size={32} />
               <span className="font-medium">{u?.username}</span>
               {m.role === "admin" && (
                 <span className="text-xs bg-green-100 text-green-700 rounded px-1">מנהל</span>

@@ -308,25 +308,31 @@ export type Database = {
       }
       users: {
         Row: {
+          avatar_config: Json | null
           avatar_url: string | null
           created_at: string
           email: string
           id: string
           username: string
+          username_changed_at: string | null
         }
         Insert: {
+          avatar_config?: Json | null
           avatar_url?: string | null
           created_at?: string
           email: string
           id: string
           username: string
+          username_changed_at?: string | null
         }
         Update: {
+          avatar_config?: Json | null
           avatar_url?: string | null
           created_at?: string
           email?: string
           id?: string
           username?: string
+          username_changed_at?: string | null
         }
         Relationships: []
       }
@@ -393,6 +399,7 @@ export type Database = {
       leaderboard_alltime: {
         Row: {
           avatar_url: string | null
+          avatar_config: Json | null
           avg_duration_seconds: number | null
           avg_guesses: number | null
           rank: number | null
@@ -414,6 +421,7 @@ export type Database = {
       leaderboard_global: {
         Row: {
           avatar_url: string | null
+          avatar_config: Json | null
           date: string | null
           duration_seconds: number | null
           guesses: number | null
