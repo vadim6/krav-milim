@@ -1,5 +1,7 @@
 import Link from "next/link"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
+import logo from "@/app/krav_milim_logo.png"
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -8,6 +10,7 @@ export default async function HomePage() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-8 p-8 text-center">
       <div className="flex flex-col items-center gap-2">
+        <Image src={logo} alt="קרב מילים" width={350} priority />
         <h1 className="text-5xl font-bold tracking-tight">קרב מילים</h1>
         <p className="text-lg text-gray-500">משחק ניחוש מילים תחרותי בעברית</p>
       </div>

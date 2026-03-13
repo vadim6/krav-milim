@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { createPortal } from "react-dom"
+import Image from "next/image"
+import logo from "@/app/krav_milim_logo.png"
 
 function GitHubIcon() {
   return (
@@ -41,6 +43,9 @@ export default function AboutButton() {
             className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl p-6 w-full max-w-sm text-right"
             onClick={(e) => e.stopPropagation()}
           >
+            <div className="flex justify-center mb-4">
+              <Image src={logo} alt="קרב מילים" height={128} />
+            </div>
             <h2 className="text-xl font-bold mb-4">אודות קרב מילים</h2>
             <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
               <p>
