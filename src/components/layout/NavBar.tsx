@@ -1,9 +1,11 @@
 import Link from "next/link"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
 import ThemeToggle from "./ThemeToggle"
 import AboutButton from "./AboutButton"
 import AvatarDisplay from "@/components/avatar/AvatarDisplay"
 import type { AvatarConfig } from "@/lib/avatar/styles"
+import logo from "@/app/krav_milim_logo.png"
 
 export default async function NavBar() {
   const supabase = await createClient()
@@ -26,11 +28,12 @@ export default async function NavBar() {
   return (
     <header className="border-b bg-white dark:bg-gray-900 sticky top-0 z-10">
       <nav className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href="/game" className="text-lg font-bold">
-          קרב מילים
+        <Link href="/game" className="flex items-center gap-2 shrink-0">
+          <Image src={logo} alt="" height={44} priority />
+          <span className="text-lg font-bold">קרב מילים</span>
         </Link>
 
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-3 text-sm">
           {isAdmin && (
             <Link
               href="/admin"
@@ -39,12 +42,12 @@ export default async function NavBar() {
               ניהול
             </Link>
           )}
-          <Link href="/game"        className="hover:text-green-600 transition-colors">משחק</Link>
-          <Link href="/leaderboard" className="hover:text-green-600 transition-colors">דירוג</Link>
-          <Link href="/rivalries"   className="hover:text-green-600 transition-colors">יריבויות</Link>
+          <Link href="/game"        className="hidden sm:inline hover:text-green-600 transition-colors">משחק</Link>
+          <Link href="/leaderboard" className="hidden sm:inline hover:text-green-600 transition-colors">דירוג</Link>
+          <Link href="/rivalries"   className="hidden sm:inline hover:text-green-600 transition-colors">יריבויות</Link>
           <Link href="/profile" className="flex items-center gap-1.5 hover:text-green-600 transition-colors font-medium">
             <AvatarDisplay config={avatarConfig} username={username ?? ""} size={28} />
-            {username ?? "פרופיל"}
+            <span className="hidden sm:inline">{username ?? "פרופיל"}</span>
           </Link>
           <ThemeToggle />
           <AboutButton />
