@@ -1,6 +1,6 @@
 # Krav Milim (קרב מילים)
 
-A competitive Hebrew Wordle game. Solve the daily 5-letter Hebrew word, then see how you ranked against your **Nemesis rivals** — friends you've challenged to an ongoing 1v1 rivalry.
+A competitive Hebrew word game inspired by Wordle. Solve the daily 5-letter Hebrew word, then see how you ranked against your **Nemesis rivals** — friends you've challenged to an ongoing 1v1 rivalry.
 
 ## Features
 

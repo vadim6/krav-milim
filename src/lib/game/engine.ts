@@ -9,7 +9,7 @@ import { WORD_LENGTH } from "./constants"
  * Evaluate a guess against the answer.
  * Both inputs are normalized (final forms → base forms) before comparison.
  *
- * Algorithm (matches standard Wordle rules):
+ * Algorithm (matches standard Wordle-like rules):
  *   1. Mark exact matches as "correct".
  *   2. For remaining positions, mark letters that appear elsewhere as "present",
  *      consuming each answer letter at most once.
