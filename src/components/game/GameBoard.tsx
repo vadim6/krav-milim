@@ -46,6 +46,19 @@ export default function GameBoard({ wordId, existingResult }: Props) {
     return () => window.visualViewport?.removeEventListener("resize", compute)
   }, [])
 
+  // Track game-in-progress for the settings modal's hard-mode guard
+  useEffect(() => {
+    if (state.guesses.length > 0 && state.gameStatus === "playing") {
+      localStorage.setItem("krav-milim-game-in-progress", "true")
+    }
+  }, [state.guesses.length, state.gameStatus])
+
+  useEffect(() => {
+    if (state.gameStatus === "won" || state.gameStatus === "lost") {
+      localStorage.setItem("krav-milim-game-in-progress", "false")
+    }
+  }, [state.gameStatus])
+
   useEffect(() => {
     if (state.gameStatus === "playing") return
     const arr = state.gameStatus === "won" ? WIN_TEXTS : LOSS_TEXTS
@@ -76,12 +89,20 @@ export default function GameBoard({ wordId, existingResult }: Props) {
     >
       {/* Grid */}
       <div className="relative flex flex-col gap-1" role="grid" aria-label="לוח המשחק">
-        {/* "Not in word list" toast — floats over the top of the board */}
-        {state.notInWordList && (
+        {/* Toasts — float over the top of the board */}
+        {(state.notInWordList || state.hardModeViolation) && (
           <div className="absolute left-1/2 -translate-x-1/2 top-0 z-50 pointer-events-none">
-            <div className="rounded-lg bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 px-5 py-3 text-sm font-semibold shadow-lg animate-fade-in-out whitespace-nowrap">
-              המילה אינה מופיעה ברשימת המילים
-            </div>
+            {state.notInWordList && (
+              <div className="rounded-lg bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 px-5 py-3 text-sm font-semibold shadow-lg animate-fade-in-out whitespace-nowrap">
+                המילה אינה מופיעה ברשימת המילים
+              </div>
+            )}
+            {state.hardModeViolation && (
+              <div
+                className="rounded-lg bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 px-5 py-3 text-sm font-semibold shadow-lg animate-fade-in-out whitespace-nowrap"
+                dangerouslySetInnerHTML={{ __html: state.hardModeViolation }}
+              />
+            )}
           </div>
         )}
         {/* Completed rows */}
@@ -96,7 +117,7 @@ export default function GameBoard({ wordId, existingResult }: Props) {
 
         {/* Current input row */}
         {state.gameStatus === "playing" && (
-          <GameRow current={state.currentGuess} invalid={state.invalidGuess || state.notInWordList} />
+          <GameRow current={state.currentGuess} invalid={state.invalidGuess || state.notInWordList || !!state.hardModeViolation} />
         )}
 
         {/* Empty rows */}

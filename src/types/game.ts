@@ -10,9 +10,10 @@ export interface GameState {
   gameStatus:       "playing" | "won" | "lost"
   startTime:        number | null  // Date.now() on first keypress
   isRevealing:      boolean        // block input during flip animation
-  invalidGuess:     boolean        // triggers row shake
-  notInWordList:    boolean        // triggers "not in list" overlay
-  answer:           string | null  // revealed after game ends
+  invalidGuess:       boolean        // triggers row shake
+  notInWordList:      boolean        // triggers "not in list" overlay
+  hardModeViolation:  string | null  // triggers hard-mode toast with message
+  answer:             string | null  // revealed after game ends
 }
 
 export type GameAction =
@@ -26,3 +27,5 @@ export type GameAction =
   | { type: "SET_LOST" }
   | { type: "SET_NOT_IN_WORD_LIST" }
   | { type: "CLEAR_NOT_IN_WORD_LIST" }
+  | { type: "SET_HARD_MODE_VIOLATION"; message: string }
+  | { type: "CLEAR_HARD_MODE_VIOLATION" }

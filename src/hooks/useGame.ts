@@ -27,28 +27,30 @@ function initialState(
         : "playing"
     return {
       wordId,
-      currentGuess:    "",
-      guesses:         existing.guess_history,
-      revealedLetters: existing.revealed_letters,
+      currentGuess:      "",
+      guesses:           existing.guess_history,
+      revealedLetters:   existing.revealed_letters,
       gameStatus,
-      startTime:       null,
-      isRevealing:     false,
-      invalidGuess:    false,
-      notInWordList:   false,
-      answer:          null,
+      startTime:         null,
+      isRevealing:       false,
+      invalidGuess:      false,
+      notInWordList:     false,
+      hardModeViolation: null,
+      answer:            null,
     }
   }
   return {
     wordId,
-    currentGuess:    "",
-    guesses:         [],
-    revealedLetters: emptyRevealed(),
-    gameStatus:      "playing",
-    startTime:       null,
-    isRevealing:     false,
-    invalidGuess:    false,
-    notInWordList:   false,
-    answer:          null,
+    currentGuess:      "",
+    guesses:           [],
+    revealedLetters:   emptyRevealed(),
+    gameStatus:        "playing",
+    startTime:         null,
+    isRevealing:       false,
+    invalidGuess:      false,
+    notInWordList:     false,
+    hardModeViolation: null,
+    answer:            null,
   }
 }
 
@@ -95,6 +97,12 @@ function reducer(state: GameState, action: GameAction): GameState {
     case "CLEAR_NOT_IN_WORD_LIST":
       return { ...state, notInWordList: false }
 
+    case "SET_HARD_MODE_VIOLATION":
+      return { ...state, hardModeViolation: action.message }
+
+    case "CLEAR_HARD_MODE_VIOLATION":
+      return { ...state, hardModeViolation: null }
+
     case "SET_REVEALING":
       return { ...state, isRevealing: action.value }
 
@@ -129,6 +137,33 @@ export function useGame(wordId: string, existing: ExistingResult | null) {
       dispatch({ type: "SET_INVALID" })
       setTimeout(() => dispatch({ type: "CLEAR_INVALID" }), 500)
       return
+    }
+
+    // Hard mode validation
+    const hardMode = localStorage.getItem("krav-milim-gibor-mode") === "true"
+    if (hardMode && state.guesses.length > 0) {
+      const normalized = normalizeWord(guess)
+      for (const prev of state.guesses) {
+        const prevNorm = normalizeWord(prev.guess)
+        // Greens: must appear in the same position
+        for (let i = 0; i < WORD_LENGTH; i++) {
+          if (prev.result[i] === "correct" && normalized[i] !== prevNorm[i]) {
+            const msg = `האות <strong>${prevNorm[i]}</strong> חייבת להיות במיקום <strong>${i + 1}</strong>`
+            dispatch({ type: "SET_HARD_MODE_VIOLATION", message: msg })
+            setTimeout(() => dispatch({ type: "CLEAR_HARD_MODE_VIOLATION" }), 2500)
+            return
+          }
+        }
+        // Yellows: must appear somewhere in the guess
+        for (let i = 0; i < WORD_LENGTH; i++) {
+          if (prev.result[i] === "present" && !normalized.includes(prevNorm[i])) {
+            const msg = `הניחוש חייב לכלול את האות <strong>${prevNorm[i]}</strong>`
+            dispatch({ type: "SET_HARD_MODE_VIOLATION", message: msg })
+            setTimeout(() => dispatch({ type: "CLEAR_HARD_MODE_VIOLATION" }), 2500)
+            return
+          }
+        }
+      }
     }
 
     isSubmittingRef.current = true

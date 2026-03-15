@@ -3,6 +3,7 @@ import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
 import ThemeToggle from "./ThemeToggle"
 import AboutButton from "./AboutButton"
+import SettingsButton from "./SettingsButton"
 import AvatarDisplay from "@/components/avatar/AvatarDisplay"
 import type { AvatarConfig } from "@/lib/avatar/styles"
 import logo from "@/app/krav_milim_logo.png"
@@ -49,6 +50,7 @@ export default async function NavBar() {
             <AvatarDisplay config={avatarConfig} username={username ?? ""} size={28} />
             <span className="hidden sm:inline">{username ?? "פרופיל"}</span>
           </Link>
+          <SettingsButton />
           <ThemeToggle />
           <AboutButton />
         </div>
