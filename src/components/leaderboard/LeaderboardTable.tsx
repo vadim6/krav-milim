@@ -38,7 +38,7 @@ export default function LeaderboardTable({ daily, alltime }: Props) {
             <th className="py-2 sm:py-3 font-medium">שחקן</th>
             <th className="py-2 sm:py-3 font-medium">ניחושים</th>
             {tab === "alltime" && <th className="py-2 sm:py-3 font-medium">נצחונות</th>}
-            <th className="py-2 sm:py-3 font-medium">זמן</th>
+            {tab === "alltime" && <th className="py-2 sm:py-3 font-medium">רצף</th>}
           </tr>
         </thead>
         <tbody>
@@ -64,11 +64,6 @@ export default function LeaderboardTable({ daily, alltime }: Props) {
                     </div>
                   </td>
                   <td className="py-2.5 sm:py-3">{row.solved ? row.guesses : "X"}</td>
-                  <td className="py-2.5 sm:py-3 text-gray-400">
-                    {row.duration_seconds != null
-                      ? `${Math.floor(row.duration_seconds / 60)}:${String(row.duration_seconds % 60).padStart(2, "0")}`
-                      : "—"}
-                  </td>
                 </tr>
               ))
             : alltime.map((row) => (
@@ -93,11 +88,7 @@ export default function LeaderboardTable({ daily, alltime }: Props) {
                   </td>
                   <td className="py-2.5 sm:py-3">{row.avg_guesses}</td>
                   <td className="py-2.5 sm:py-3">{row.total_wins}</td>
-                  <td className="py-2.5 sm:py-3 text-gray-400">
-                    {row.avg_duration_seconds != null
-                      ? `${Math.round(row.avg_duration_seconds)}s`
-                      : "—"}
-                  </td>
+                  <td className="py-2.5 sm:py-3 text-gray-400">{row.current_streak || "—"}</td>
                 </tr>
               ))}
         </tbody>

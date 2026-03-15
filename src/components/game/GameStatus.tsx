@@ -9,6 +9,7 @@ interface Props {
   guessHistory: GuessHistoryEntry[]
   answer:     string | null
   statusText: StatusText
+  streakData: { currentStreak: number; bestStreak: number } | null
   onDismiss:  () => void
 }
 
@@ -20,7 +21,7 @@ const TILE_EMOJI: Record<string, string> = {
   tbd:     "⬜",
 }
 
-export default function GameStatus({ status, guessCount, guessHistory, answer, statusText, onDismiss }: Props) {
+export default function GameStatus({ status, guessCount, guessHistory, answer, statusText, streakData, onDismiss }: Props) {
   const subtitle = statusText.subtitle?.replace("{guesses}", String(guessCount))
 
   const dateStr = new Date().toLocaleDateString("he-IL", { day: "numeric", month: "numeric", year: "numeric" })
@@ -56,6 +57,18 @@ export default function GameStatus({ status, guessCount, guessHistory, answer, s
         className="flex flex-col items-center gap-3 rounded-2xl border border-gray-700 bg-[var(--background)] p-6 text-center w-full max-w-[260px] mx-4 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
+        {streakData !== null && (
+          <div className="w-full flex justify-center gap-6 pb-1 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-2xl font-bold">{streakData.currentStreak}</span>
+              <span className="text-xs text-gray-500">רצף נוכחי</span>
+            </div>
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-2xl font-bold">{streakData.bestStreak}</span>
+              <span className="text-xs text-gray-500">רצף שיא</span>
+            </div>
+          </div>
+        )}
         <p className="text-4xl">{statusText.emoji}</p>
         <p className="text-xl font-bold">{statusText.title}</p>
 

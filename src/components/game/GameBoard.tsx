@@ -17,16 +17,16 @@ interface ExistingResult {
   guesses:          number
   guess_history:    GuessHistoryEntry[]
   revealed_letters: RevealedLetters
-  duration_seconds: number | null
 }
 
 interface Props {
-  wordId:         string
-  existingResult: ExistingResult | null
+  wordId:            string
+  existingResult:    ExistingResult | null
+  initialStreakData: { currentStreak: number; bestStreak: number } | null
 }
 
-export default function GameBoard({ wordId, existingResult }: Props) {
-  const { state, dispatch } = useGame(wordId, existingResult)
+export default function GameBoard({ wordId, existingResult, initialStreakData }: Props) {
+  const { state, dispatch } = useGame(wordId, existingResult, initialStreakData)
   const [statusDismissed, setStatusDismissed] = useState(false)
   const [statusText, setStatusText] = useState<StatusText | null>(null)
 
@@ -133,6 +133,7 @@ export default function GameBoard({ wordId, existingResult }: Props) {
             guessHistory={state.guesses}
             answer={state.answer}
             statusText={statusText}
+            streakData={state.streakData}
             onDismiss={() => setStatusDismissed(true)}
           />
         )}
