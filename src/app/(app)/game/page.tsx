@@ -29,7 +29,7 @@ export default async function GamePage() {
   const { data: { user } } = await supabase.auth.getUser()
   const { data: raw } = await supabase
     .from("game_results")
-    .select("id, solved, guesses, guess_history, revealed_letters, duration_seconds")
+    .select("id, solved, guesses, guess_history, revealed_letters")
     .eq("user_id", user!.id)
     .eq("word_id", word.id)
     .single()
@@ -43,10 +43,23 @@ export default async function GamePage() {
       }
     : null
 
+  // If the game is already over, fetch current streak to show in the status overlay
+  let initialStreakData: { currentStreak: number; bestStreak: number } | null = null
+  if (raw && (raw.solved || raw.guesses >= 6)) {
+    const { data: userData } = await supabase
+      .from("users")
+      .select("current_streak, best_streak")
+      .eq("id", user!.id)
+      .single()
+    if (userData) {
+      initialStreakData = { currentStreak: userData.current_streak, bestStreak: userData.best_streak }
+    }
+  }
+
   return (
     <div className="flex flex-col items-center gap-6">
       <h1 className="text-2xl font-bold">מילת היום</h1>
-      <GameBoard wordId={word.id} existingResult={existing} />
+      <GameBoard wordId={word.id} existingResult={existing} initialStreakData={initialStreakData} />
     </div>
   )
 }

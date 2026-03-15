@@ -310,27 +310,36 @@ export type Database = {
         Row: {
           avatar_config: Json | null
           avatar_url: string | null
+          best_streak: number
           created_at: string
+          current_streak: number
           email: string
           id: string
+          last_solved_date: string | null
           username: string
           username_changed_at: string | null
         }
         Insert: {
           avatar_config?: Json | null
           avatar_url?: string | null
+          best_streak?: number
           created_at?: string
+          current_streak?: number
           email: string
           id: string
+          last_solved_date?: string | null
           username: string
           username_changed_at?: string | null
         }
         Update: {
           avatar_config?: Json | null
           avatar_url?: string | null
+          best_streak?: number
           created_at?: string
+          current_streak?: number
           email?: string
           id?: string
+          last_solved_date?: string | null
           username?: string
           username_changed_at?: string | null
         }
@@ -400,10 +409,10 @@ export type Database = {
         Row: {
           avatar_url: string | null
           avatar_config: Json | null
-          avg_duration_seconds: number | null
           avg_guesses: number | null
+          best_streak: number | null
+          current_streak: number | null
           rank: number | null
-          total_games: number | null
           total_wins: number | null
           user_id: string | null
           username: string | null
@@ -423,7 +432,6 @@ export type Database = {
           avatar_url: string | null
           avatar_config: Json | null
           date: string | null
-          duration_seconds: number | null
           guesses: number | null
           rank: number | null
           solved: boolean | null
