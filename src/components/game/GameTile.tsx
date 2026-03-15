@@ -51,11 +51,14 @@ export default function GameTile({ letter, state, delay = 0, revealed, animating
   return (
     <div
       className={`
-        flex h-[68px] w-[68px] items-center justify-center
-        border-2 text-2xl font-bold uppercase select-none
+        flex h-[var(--tile-size)] w-[var(--tile-size)] items-center justify-center
+        border-2 font-bold uppercase select-none
         ${stateClass} ${animClass}
       `}
-      style={animating && letter ? { animationDelay: `${delay}ms` } : undefined}
+      style={{
+        fontSize: "calc(var(--tile-size) * 0.45)",
+        ...(animating && letter ? { animationDelay: `${delay}ms` } : {}),
+      }}
       aria-label={letter ? `${letter} ${state}` : "ריק"}
     >
       {letter}
