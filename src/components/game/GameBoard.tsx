@@ -30,6 +30,22 @@ export default function GameBoard({ wordId, existingResult }: Props) {
   const [statusDismissed, setStatusDismissed] = useState(false)
   const [statusText, setStatusText] = useState<StatusText | null>(null)
 
+  // Dynamically size tiles and keyboard keys to fit the available viewport height.
+  // Uses visualViewport so it reacts to mobile browser chrome appearing/disappearing.
+  const [tileSize, setTileSize] = useState(68)
+  useEffect(() => {
+    function compute() {
+      const vh = window.visualViewport?.height ?? window.innerHeight
+      // Fixed overhead: navbar(56) + pt-6(24) + h1+gap(56) + row-gaps(20)
+      //               + board-keyboard gap(8) + keyboard h-14 3rows+gaps(184) + pb-20(80)
+      const FIXED = 428
+      setTileSize(Math.round(Math.min(68, Math.max(38, (vh - FIXED) / 6))))
+    }
+    compute()
+    window.visualViewport?.addEventListener("resize", compute)
+    return () => window.visualViewport?.removeEventListener("resize", compute)
+  }, [])
+
   useEffect(() => {
     if (state.gameStatus === "playing") return
     const arr = state.gameStatus === "won" ? WIN_TEXTS : LOSS_TEXTS
@@ -54,7 +70,10 @@ export default function GameBoard({ wordId, existingResult }: Props) {
   )
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full">
+    <div
+      className="flex flex-col items-center gap-2 w-full"
+      style={{ "--tile-size": `${tileSize}px` } as React.CSSProperties}
+    >
       {/* Grid */}
       <div className="relative flex flex-col gap-1" role="grid" aria-label="לוח המשחק">
         {/* "Not in word list" toast — floats over the top of the board */}
