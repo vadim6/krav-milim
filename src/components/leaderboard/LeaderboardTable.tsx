@@ -31,33 +31,40 @@ export default function LeaderboardTable({ daily, alltime }: Props) {
         ))}
       </div>
 
-      <table className="w-full text-sm">
+      <table className="w-full text-base sm:text-lg">
         <thead>
           <tr className="border-b text-gray-400 text-right">
-            <th className="py-2 font-medium">#</th>
-            <th className="py-2 font-medium">שחקן</th>
-            <th className="py-2 font-medium">ניחושים</th>
-            {tab === "alltime" && <th className="py-2 font-medium">נצחונות</th>}
-            <th className="py-2 font-medium">זמן</th>
+            <th className="py-2 sm:py-3 font-medium">#</th>
+            <th className="py-2 sm:py-3 font-medium">שחקן</th>
+            <th className="py-2 sm:py-3 font-medium">ניחושים</th>
+            {tab === "alltime" && <th className="py-2 sm:py-3 font-medium">נצחונות</th>}
+            <th className="py-2 sm:py-3 font-medium">זמן</th>
           </tr>
         </thead>
         <tbody>
           {tab === "daily"
             ? daily.map((row) => (
                 <tr key={row.user_id} className="border-b last:border-0">
-                  <td className="py-2 text-gray-400">{row.rank}</td>
-                  <td className="py-2">
-                    <div className="flex items-center gap-2">
+                  <td className="py-2.5 sm:py-3 text-gray-400">{row.rank}</td>
+                  <td className="py-2.5 sm:py-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <AvatarDisplay
                         config={row.avatar_config as AvatarConfig | null}
                         username={row.username ?? ""}
-                        size={28}
+                        size={32}
+                        className="sm:hidden"
+                      />
+                      <AvatarDisplay
+                        config={row.avatar_config as AvatarConfig | null}
+                        username={row.username ?? ""}
+                        size={44}
+                        className="hidden sm:block"
                       />
                       <span className="font-medium">{row.username}</span>
                     </div>
                   </td>
-                  <td className="py-2">{row.solved ? row.guesses : "X"}</td>
-                  <td className="py-2 text-gray-400">
+                  <td className="py-2.5 sm:py-3">{row.solved ? row.guesses : "X"}</td>
+                  <td className="py-2.5 sm:py-3 text-gray-400">
                     {row.duration_seconds != null
                       ? `${Math.floor(row.duration_seconds / 60)}:${String(row.duration_seconds % 60).padStart(2, "0")}`
                       : "—"}
@@ -66,20 +73,27 @@ export default function LeaderboardTable({ daily, alltime }: Props) {
               ))
             : alltime.map((row) => (
                 <tr key={row.user_id} className="border-b last:border-0">
-                  <td className="py-2 text-gray-400">{row.rank}</td>
-                  <td className="py-2">
-                    <div className="flex items-center gap-2">
+                  <td className="py-2.5 sm:py-3 text-gray-400">{row.rank}</td>
+                  <td className="py-2.5 sm:py-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <AvatarDisplay
                         config={row.avatar_config as AvatarConfig | null}
                         username={row.username ?? ""}
-                        size={28}
+                        size={32}
+                        className="sm:hidden"
+                      />
+                      <AvatarDisplay
+                        config={row.avatar_config as AvatarConfig | null}
+                        username={row.username ?? ""}
+                        size={44}
+                        className="hidden sm:block"
                       />
                       <span className="font-medium">{row.username}</span>
                     </div>
                   </td>
-                  <td className="py-2">{row.avg_guesses}</td>
-                  <td className="py-2">{row.total_wins}</td>
-                  <td className="py-2 text-gray-400">
+                  <td className="py-2.5 sm:py-3">{row.avg_guesses}</td>
+                  <td className="py-2.5 sm:py-3">{row.total_wins}</td>
+                  <td className="py-2.5 sm:py-3 text-gray-400">
                     {row.avg_duration_seconds != null
                       ? `${Math.round(row.avg_duration_seconds)}s`
                       : "—"}
