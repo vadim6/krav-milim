@@ -18,6 +18,7 @@ function initialState(
     guess_history: GuessHistoryEntry[]
     revealed_letters: RevealedLetters
   } | null,
+  initialStreakData: { currentStreak: number; bestStreak: number } | null,
 ): GameState {
   if (existing) {
     const gameStatus = existing.solved
@@ -31,12 +32,12 @@ function initialState(
       guesses:           existing.guess_history,
       revealedLetters:   existing.revealed_letters,
       gameStatus,
-      startTime:         null,
       isRevealing:       false,
       invalidGuess:      false,
       notInWordList:     false,
       hardModeViolation: null,
       answer:            null,
+      streakData:        initialStreakData,
     }
   }
   return {
@@ -45,12 +46,12 @@ function initialState(
     guesses:           [],
     revealedLetters:   emptyRevealed(),
     gameStatus:        "playing",
-    startTime:         null,
     isRevealing:       false,
     invalidGuess:      false,
     notInWordList:     false,
     hardModeViolation: null,
     answer:            null,
+    streakData:        null,
   }
 }
 
@@ -58,8 +59,7 @@ function reducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "ADD_LETTER": {
       if (state.currentGuess.length >= WORD_LENGTH) return state
-      const startTime = state.startTime ?? Date.now()
-      return { ...state, currentGuess: state.currentGuess + action.letter, startTime }
+      return { ...state, currentGuess: state.currentGuess + action.letter }
     }
 
     case "DELETE_LETTER":
@@ -82,6 +82,9 @@ function reducer(state: GameState, action: GameAction): GameState {
         gameStatus:      solved ? "won" : lost ? "lost" : "playing",
         isRevealing:     true,
         answer:          action.answer ?? state.answer,
+        streakData:      action.streak
+          ? { currentStreak: action.streak.current_streak, bestStreak: action.streak.best_streak }
+          : state.streakData,
       }
     }
 
@@ -121,12 +124,15 @@ interface ExistingResult {
   solved:           boolean
   guess_history:    GuessHistoryEntry[]
   revealed_letters: RevealedLetters
-  duration_seconds: number | null
 }
 
-export function useGame(wordId: string, existing: ExistingResult | null) {
+export function useGame(
+  wordId: string,
+  existing: ExistingResult | null,
+  initialStreakData: { currentStreak: number; bestStreak: number } | null = null,
+) {
   const [state, dispatch] = useReducer(reducer, null, () =>
-    initialState(wordId, existing),
+    initialState(wordId, existing, initialStreakData),
   )
   const isSubmittingRef = useRef(false)
 
@@ -174,7 +180,6 @@ export function useGame(wordId: string, existing: ExistingResult | null) {
         wordId,
         guess,
         previousHistory: state.guesses,
-        startTime:       state.startTime ?? Date.now(),
       }),
     })
 
@@ -191,8 +196,8 @@ export function useGame(wordId: string, existing: ExistingResult | null) {
       return
     }
 
-    const { result, answer } = await res.json()
-    dispatch({ type: "SUBMIT_GUESS", result, answer })
+    const { result, answer, streak } = await res.json()
+    dispatch({ type: "SUBMIT_GUESS", result, answer, streak })
 
     // Clear isRevealing after animation completes (300ms per tile × 5 + buffer)
     setTimeout(() => {

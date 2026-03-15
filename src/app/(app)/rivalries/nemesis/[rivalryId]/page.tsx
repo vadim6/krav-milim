@@ -40,8 +40,8 @@ export default async function NemesisRivalryPage({ params }: Props) {
       word_id,
       winner_id,
       tiebreaker_applied,
-      challenger_result:challenger_result_id ( guesses, solved, duration_seconds ),
-      receiver_result:receiver_result_id     ( guesses, solved, duration_seconds )
+      challenger_result:challenger_result_id ( guesses, solved ),
+      receiver_result:receiver_result_id     ( guesses, solved )
     `)
     .eq("rivalry_id", rivalryId)
     .order("date", { ascending: false })
@@ -85,7 +85,7 @@ export default async function NemesisRivalryPage({ params }: Props) {
               const pending = !myResult || !theirResult
 
               // Type assertions for joined rows
-              type RoundResult = { guesses: number; solved: boolean; duration_seconds: number | null } | null
+              type RoundResult = { guesses: number; solved: boolean } | null
               const myR    = myResult    as unknown as RoundResult
               const theirR = theirResult as unknown as RoundResult
 
@@ -123,7 +123,7 @@ export default async function NemesisRivalryPage({ params }: Props) {
             })}
           </div>
           {rounds.some(r => r.tiebreaker_applied) && (
-            <p className="text-xs text-gray-500">* הוכרע ע"י מחשבון תיקו (זמן)</p>
+            <p className="text-xs text-gray-500">* הוכרע ע"י מחשבון תיקו</p>
           )}
         </section>
       )}
