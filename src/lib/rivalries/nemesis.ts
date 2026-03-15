@@ -11,10 +11,9 @@ export interface PlayerResult {
   guesses:         number
   revealedLetters: RevealedLetters
   guessHistory:    GuessHistoryEntry[]
-  durationSeconds: number | null
 }
 
-export type TiebreakerTier = 1 | 2 | 3 | 4 | 5
+export type TiebreakerTier = 1 | 2 | 3 | 4
 
 export interface NemesisOutcome {
   winnerId:          string | null   // null = draw
@@ -52,12 +51,6 @@ export function computeNemesisOutcome(
   if (aGreens < bGreens) return { winnerId: a.userId, tiebreakerTier: 3 }
   if (bGreens < aGreens) return { winnerId: b.userId, tiebreakerTier: 3 }
 
-  // Tier 4: faster time
-  const aDur = a.durationSeconds ?? Infinity
-  const bDur = b.durationSeconds ?? Infinity
-  if (aDur < bDur) return { winnerId: a.userId, tiebreakerTier: 4 }
-  if (bDur < aDur) return { winnerId: b.userId, tiebreakerTier: 4 }
-
-  // Tier 5: draw
-  return { winnerId: null, tiebreakerTier: 5 }
+  // Tier 4: draw
+  return { winnerId: null, tiebreakerTier: 4 }
 }

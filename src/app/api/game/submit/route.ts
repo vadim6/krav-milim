@@ -11,7 +11,6 @@ interface SubmitBody {
   wordId:          string
   guess:           string
   previousHistory: GuessHistoryEntry[]
-  startTime:       number   // Date.now() when first key was pressed
 }
 
 /**
@@ -34,7 +33,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
   }
 
-  const { wordId, guess, previousHistory, startTime } = body
+  const { wordId, guess, previousHistory } = body
 
   // Basic input validation
   if (!wordId || !guess || typeof guess !== "string") {
@@ -69,9 +68,8 @@ export async function POST(request: Request) {
   const revealedLetters = buildRevealedLetters(newHistory)
   const guessCount = newHistory.length
   const isLastGuess = guessCount >= MAX_GUESSES
-  const durationSeconds = Math.round((Date.now() - startTime) / 1000)
 
-  // Upsert game result and get back the row ID
+  // Upsert game result
   const { data: upserted, error: upsertError } = await supabase
     .from("game_results")
     .upsert(
@@ -82,7 +80,6 @@ export async function POST(request: Request) {
         guess_history:    newHistory as unknown as import("@/types/database").Json,
         revealed_letters: revealedLetters as unknown as import("@/types/database").Json,
         solved:           solved || false,
-        duration_seconds: (solved || isLastGuess) ? durationSeconds : null,
       }],
       { onConflict: "user_id,word_id" },
     )
@@ -93,20 +90,68 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: upsertError.message }, { status: 500 })
   }
 
-  // When game is over and the word is daily_global, record nemesis round scores
-  if ((solved || isLastGuess) && word.source === "daily_global" && upserted) {
-    await recordNemesisScores(user.id, wordId, upserted.id, serviceClient)
+  const gameOver = solved || isLastGuess
+
+  let streakData: { current_streak: number; best_streak: number } | undefined
+  if (gameOver && word.source === "daily_global") {
+    streakData = await updateStreak(user.id, solved, serviceClient)
+    if (upserted) {
+      await recordNemesisScores(user.id, wordId, upserted.id, serviceClient)
+    }
   }
 
   return NextResponse.json({
     result,
     solved,
-    gameOver: solved || isLastGuess,
-    answer:   (solved || isLastGuess) ? word.word : undefined,
+    gameOver,
+    answer:  gameOver ? word.word : undefined,
+    streak:  streakData,
   })
 }
 
 type ServiceClient = ReturnType<typeof createServiceClient>
+
+async function updateStreak(
+  userId: string,
+  solved: boolean,
+  service: ServiceClient,
+): Promise<{ current_streak: number; best_streak: number }> {
+  if (!solved) {
+    await service.from("users").update({ current_streak: 0 }).eq("id", userId)
+    const { data } = await service.from("users").select("best_streak").eq("id", userId).single()
+    return { current_streak: 0, best_streak: data?.best_streak ?? 0 }
+  }
+
+  const { data: userData } = await service
+    .from("users")
+    .select("current_streak, best_streak, last_solved_date")
+    .eq("id", userId)
+    .single()
+
+  if (!userData) return { current_streak: 0, best_streak: 0 }
+
+  const today      = new Date().toISOString().split("T")[0]
+  const yesterday  = new Date(Date.now() - 86400000).toISOString().split("T")[0]
+  const lastSolved = userData.last_solved_date as string | null
+
+  let newStreak: number
+  if (lastSolved === today) {
+    newStreak = userData.current_streak
+  } else if (lastSolved === yesterday) {
+    newStreak = userData.current_streak + 1
+  } else {
+    newStreak = 1
+  }
+
+  const newBest = Math.max(userData.best_streak, newStreak)
+  await service.from("users").update({
+    current_streak:   newStreak,
+    best_streak:      newBest,
+    last_solved_date: today,
+  }).eq("id", userId)
+
+  return { current_streak: newStreak, best_streak: newBest }
+}
 
 /**
  * After a game ends, find all active nemesis rivalries for this user and upsert
@@ -119,7 +164,6 @@ async function recordNemesisScores(
   gameResultId:  string,
   service:       ServiceClient,
 ) {
-  // Find active rivalries for this user
   const { data: rivalries } = await service
     .from("nemesis_rivalries")
     .select("id, challenger_id, receiver_id")
@@ -132,7 +176,6 @@ async function recordNemesisScores(
     const isChallenger = rivalry.challenger_id === userId
     const updateField  = isChallenger ? "challenger_result_id" : "receiver_result_id"
 
-    // Upsert: create row if not exists, or update my result_id if game was re-played (admin reset)
     await service
       .from("nemesis_scores")
       .upsert(

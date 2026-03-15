@@ -8,18 +8,18 @@ export interface GameState {
   guesses:          GuessHistoryEntry[]
   revealedLetters:  RevealedLetters
   gameStatus:       "playing" | "won" | "lost"
-  startTime:        number | null  // Date.now() on first keypress
   isRevealing:      boolean        // block input during flip animation
   invalidGuess:       boolean        // triggers row shake
   notInWordList:      boolean        // triggers "not in list" overlay
   hardModeViolation:  string | null  // triggers hard-mode toast with message
   answer:             string | null  // revealed after game ends
+  streakData:         { currentStreak: number; bestStreak: number } | null
 }
 
 export type GameAction =
   | { type: "ADD_LETTER";   letter: string }
   | { type: "DELETE_LETTER" }
-  | { type: "SUBMIT_GUESS"; result: TileState[]; answer?: string }
+  | { type: "SUBMIT_GUESS"; result: TileState[]; answer?: string; streak?: { current_streak: number; best_streak: number } }
   | { type: "SET_INVALID" }
   | { type: "CLEAR_INVALID" }
   | { type: "SET_REVEALING"; value: boolean }

@@ -29,9 +29,8 @@ export interface RevealedLetters {
 
 // ── Chevre JSONB shapes ──────────────────────────────────────
 export interface SeekerResult {
-  solved:           boolean
-  guesses:          number
-  duration_seconds: number | null
+  solved:  boolean
+  guesses: number
 }
 
 // ── View row convenience types ───────────────────────────────
