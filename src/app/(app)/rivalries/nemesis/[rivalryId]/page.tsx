@@ -72,12 +72,12 @@ export default async function NemesisRivalryPage({ params }: Props) {
       </div>
       <p className="text-center text-sm text-gray-500">{summary.rounds_played ?? 0} סיבובים</p>
 
-      {/* Round history */}
-      {rounds && rounds.length > 0 && (
+      {/* Round history — only show rounds where both players have finished */}
+      {rounds && rounds.filter(r => r.challenger_result && r.receiver_result).length > 0 && (
         <section className="flex flex-col gap-2">
           <h2 className="font-semibold text-gray-300">היסטוריית סיבובים</h2>
           <div className="rounded-xl border border-gray-700 overflow-hidden">
-            {rounds.map((round, i) => {
+            {rounds.filter(r => r.challenger_result && r.receiver_result).map((round, i) => {
               const myResult   = iAmChallenger ? round.challenger_result : round.receiver_result
               const theirResult = iAmChallenger ? round.receiver_result  : round.challenger_result
               const iWon = round.winner_id === user!.id
