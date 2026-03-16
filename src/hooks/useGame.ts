@@ -180,6 +180,7 @@ export function useGame(
         wordId,
         guess,
         previousHistory: state.guesses,
+        hardMode,
       }),
     })
 
