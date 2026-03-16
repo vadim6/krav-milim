@@ -27,7 +27,8 @@ SELECT
 FROM game_results gr
 JOIN users u ON u.id = gr.user_id
 JOIN words  w ON w.id = gr.word_id
-WHERE w.source = 'daily_global';
+WHERE w.source = 'daily_global'
+  AND (gr.solved = true OR gr.guesses >= 6);
 
 -- Recreate leaderboard_alltime: remove avg_duration, add streak, new ranking
 -- Built directly from game_results (not from leaderboard_global view) so we can JOIN users for streak fields.
