@@ -5,10 +5,10 @@
 INSERT INTO words (word, language, date, source)
 VALUES
   ('שולחן', 'he', CURRENT_DATE + 1,  'daily_global'),
-  ('מטבח', 'he', CURRENT_DATE + 2,  'daily_global'),
+  ('מזרון', 'he', CURRENT_DATE + 2,  'daily_global'),
   ('ספרים', 'he', CURRENT_DATE + 3,  'daily_global'),
   ('דלתות', 'he', CURRENT_DATE + 4,  'daily_global'),
-  ('חלונות', 'he', CURRENT_DATE + 5, 'daily_global'),
+  ('כלבים', 'he', CURRENT_DATE + 5, 'daily_global'),
   ('מכונה', 'he', CURRENT_DATE + 6,  'daily_global'),
   ('שמיים', 'he', CURRENT_DATE + 7,  'daily_global'),
   ('אריות', 'he', CURRENT_DATE + 8,  'daily_global'),

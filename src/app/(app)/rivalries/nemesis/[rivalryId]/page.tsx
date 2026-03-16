@@ -50,33 +50,33 @@ export default async function NemesisRivalryPage({ params }: Props) {
   return (
     <div className="max-w-lg mx-auto flex flex-col gap-6">
       <div className="flex items-center gap-3">
-        <Link href="/rivalries/nemesis" className="text-sm text-gray-400 hover:text-gray-200">← נמסיס</Link>
+        <Link href="/rivalries/nemesis" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">← נמסיס</Link>
       </div>
 
       <h1 className="text-2xl font-bold">נמסיס: {opponentName}</h1>
 
       {/* Scorecard */}
-      <div className="grid grid-cols-3 gap-4 rounded-2xl border border-gray-700 p-6 text-center">
+      <div className="grid grid-cols-3 gap-4 rounded-2xl border border-gray-300 dark:border-gray-700 p-6 text-center">
         <div>
           <p className="text-3xl font-bold text-green-500">{myWins}</p>
-          <p className="text-sm text-gray-400 mt-1 truncate">{myName}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 truncate">{myName}</p>
         </div>
         <div>
-          <p className="text-2xl font-bold text-gray-400">{summary.draws ?? 0}</p>
-          <p className="text-sm text-gray-500 mt-1">תיקו</p>
+          <p className="text-2xl font-bold text-gray-500 dark:text-gray-400">{summary.draws ?? 0}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">תיקו</p>
         </div>
         <div>
           <p className="text-3xl font-bold text-red-500">{theirWins}</p>
-          <p className="text-sm text-gray-400 mt-1 truncate">{opponentName}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 truncate">{opponentName}</p>
         </div>
       </div>
-      <p className="text-center text-sm text-gray-500">{summary.rounds_played ?? 0} סיבובים</p>
+      <p className="text-center text-sm text-gray-500 dark:text-gray-500">{summary.rounds_played ?? 0} סיבובים</p>
 
       {/* Round history — only show rounds where both players have finished */}
       {rounds && rounds.filter(r => r.challenger_result && r.receiver_result).length > 0 && (
         <section className="flex flex-col gap-2">
-          <h2 className="font-semibold text-gray-300">היסטוריית סיבובים</h2>
-          <div className="rounded-xl border border-gray-700 overflow-hidden">
+          <h2 className="font-semibold text-gray-700 dark:text-gray-300">היסטוריית סיבובים</h2>
+          <div className="rounded-xl border border-gray-300 dark:border-gray-700 overflow-hidden">
             {rounds.filter(r => r.challenger_result && r.receiver_result).map((round, i) => {
               const myResult   = iAmChallenger ? round.challenger_result : round.receiver_result
               const theirResult = iAmChallenger ? round.receiver_result  : round.challenger_result
@@ -92,29 +92,29 @@ export default async function NemesisRivalryPage({ params }: Props) {
               return (
                 <div
                   key={round.id}
-                  className={`flex items-center justify-between px-4 py-3 text-sm ${i % 2 === 0 ? "" : "bg-gray-900/50"}`}
+                  className={`flex items-center justify-between px-4 py-3 text-sm ${i % 2 === 0 ? "" : "bg-gray-100/80 dark:bg-gray-900/50"}`}
                 >
-                  <span className="text-gray-400 text-xs w-24 shrink-0">
+                  <span className="text-gray-500 dark:text-gray-400 text-xs w-24 shrink-0">
                     {new Date(round.date).toLocaleDateString("he-IL", { day: "2-digit", month: "2-digit" })}
                   </span>
 
                   <div className="flex items-center gap-4 flex-1 justify-center">
                     {pending ? (
-                      <span className="text-gray-500 text-xs">ממתין לתוצאות</span>
+                      <span className="text-gray-400 dark:text-gray-500 text-xs">ממתין לתוצאות</span>
                     ) : (
                       <>
-                        <span className={`tabular-nums ${iWon ? "text-green-400 font-semibold" : "text-gray-300"}`}>
+                        <span className={`tabular-nums ${iWon ? "text-green-600 dark:text-green-400 font-semibold" : "text-gray-700 dark:text-gray-300"}`}>
                           {myR ? (myR.solved ? `${myR.guesses}/6` : "✗") : "—"}
                         </span>
-                        <span className="text-gray-600">נגד</span>
-                        <span className={`tabular-nums ${!iWon && !isDraw ? "text-red-400 font-semibold" : "text-gray-300"}`}>
+                        <span className="text-gray-400 dark:text-gray-600">נגד</span>
+                        <span className={`tabular-nums ${!iWon && !isDraw ? "text-red-500 dark:text-red-400 font-semibold" : "text-gray-700 dark:text-gray-300"}`}>
                           {theirR ? (theirR.solved ? `${theirR.guesses}/6` : "✗") : "—"}
                         </span>
                       </>
                     )}
                   </div>
 
-                  <span className={`text-xs w-12 text-left shrink-0 ${iWon ? "text-green-400" : isDraw ? "text-gray-400" : pending ? "text-gray-600" : "text-red-400"}`}>
+                  <span className={`text-xs w-12 text-left shrink-0 ${iWon ? "text-green-600 dark:text-green-400" : isDraw ? "text-gray-500 dark:text-gray-400" : pending ? "text-gray-400 dark:text-gray-600" : "text-red-500 dark:text-red-400"}`}>
                     {pending ? "" : iWon ? "ניצחת" : isDraw ? "תיקו" : "הפסדת"}
                     {round.tiebreaker_applied && !pending ? " *" : ""}
                   </span>
@@ -123,10 +123,34 @@ export default async function NemesisRivalryPage({ params }: Props) {
             })}
           </div>
           {rounds.some(r => r.tiebreaker_applied) && (
-            <p className="text-xs text-gray-500">* הוכרע ע"י מחשבון תיקו</p>
+            <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-500">
+              <span>* הוכרע ע&quot;י מחשבון תיקו</span>
+              <div className="relative group">
+                <InfoIcon />
+                <div className="absolute bottom-full right-0 mb-1.5 w-56 rounded-lg bg-gray-800 border border-gray-700 p-3 text-gray-300 text-xs leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  <p className="font-semibold mb-1.5">כיצד מוכרע תיקו?</p>
+                  <ol className="flex flex-col gap-1 list-decimal list-inside text-gray-400">
+                    <li>פתרת והיריב לא — ניצחון</li>
+                    <li>פחות ניחושים — ניצחון</li>
+                    <li>פחות אותיות ירוקות/צהובות — ניצחון</li>
+                    <li>זהה לחלוטין — תיקו</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
           )}
         </section>
       )}
     </div>
+  )
+}
+
+function InfoIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-400 transition-colors cursor-default">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="16" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12.01" y2="8" />
+    </svg>
   )
 }
