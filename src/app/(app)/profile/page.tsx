@@ -8,7 +8,7 @@ import type { AvatarConfig } from "@/lib/avatar/styles"
 export default async function ProfilePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect("/login")
+  if (!user) redirect("/")
 
   const [{ data: profile }, { data: alltimeRow }] = await Promise.all([
     supabase.from("users").select("username, avatar_url, created_at, username_changed_at, avatar_config").eq("id", user.id).single(),
