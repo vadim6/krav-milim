@@ -41,7 +41,7 @@ export default async function HomePage() {
         )}
       </div>
 
-      <p className="text-sm text-gray-400">מילה יומית אחת לכולם · שלוש מצבי יריבות</p>
+      <p className="text-sm text-gray-400">מילה יומית אחת לכולם · שלושה מצבי יריבות</p>
     </main>
   )
 }
