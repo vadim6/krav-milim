@@ -37,6 +37,15 @@ export default async function HomePage() {
             >
               הירשם
             </Link>
+            <div className="flex flex-col items-center gap-2 mt-3">
+              <span className="text-xs text-gray-400">או</span>
+              <Link
+                href="/demo"
+                className="rounded-xl border border-gray-600 px-5 py-2 text-sm font-medium text-gray-400 hover:border-gray-400 hover:text-gray-200 transition-colors"
+              >
+                משחק נסיון ללא הרשמה
+              </Link>
+            </div>
           </>
         )}
       </div>
