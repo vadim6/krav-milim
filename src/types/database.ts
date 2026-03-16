@@ -146,6 +146,7 @@ export type Database = {
           duration_seconds: number | null
           guess_history: Json
           guesses: number
+          hard_mode: boolean | null
           id: string
           revealed_letters: Json
           solved: boolean
@@ -157,6 +158,7 @@ export type Database = {
           duration_seconds?: number | null
           guess_history?: Json
           guesses: number
+          hard_mode?: boolean | null
           id?: string
           revealed_letters?: Json
           solved?: boolean
@@ -168,6 +170,7 @@ export type Database = {
           duration_seconds?: number | null
           guess_history?: Json
           guesses?: number
+          hard_mode?: boolean | null
           id?: string
           revealed_letters?: Json
           solved?: boolean
@@ -412,6 +415,7 @@ export type Database = {
           avg_guesses: number | null
           best_streak: number | null
           current_streak: number | null
+          gibor_badge: boolean | null
           rank: number | null
           total_wins: number | null
           user_id: string | null
@@ -432,6 +436,7 @@ export type Database = {
           avatar_url: string | null
           avatar_config: Json | null
           date: string | null
+          gibor_badge: boolean | null
           guesses: number | null
           rank: number | null
           solved: boolean | null

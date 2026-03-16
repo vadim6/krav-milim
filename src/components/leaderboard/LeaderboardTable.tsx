@@ -61,6 +61,14 @@ export default function LeaderboardTable({ daily, alltime }: Props) {
                         className="hidden sm:block"
                       />
                       <span className="font-medium">{row.username}</span>
+                      {row.gibor_badge && (
+                        <span className="relative group text-base leading-none cursor-default outline-none" tabIndex={0}>
+                          💪
+                          <span className="absolute bottom-full right-0 mb-1.5 rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-gray-300 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity pointer-events-none z-10">
+                            שיחק ברצף במצב גיבור
+                          </span>
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="py-2.5 sm:py-3">{row.solved ? row.guesses : "X"}</td>
@@ -84,6 +92,14 @@ export default function LeaderboardTable({ daily, alltime }: Props) {
                         className="hidden sm:block"
                       />
                       <span className="font-medium">{row.username}</span>
+                      {row.gibor_badge && (
+                        <span className="relative group text-base leading-none cursor-default outline-none" tabIndex={0}>
+                          💪
+                          <span className="absolute bottom-full right-0 mb-1.5 rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-gray-300 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity pointer-events-none z-10">
+                            שיחק ברצף במצב גיבור
+                          </span>
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="py-2.5 sm:py-3">{row.avg_guesses}</td>

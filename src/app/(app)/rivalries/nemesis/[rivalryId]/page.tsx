@@ -125,9 +125,9 @@ export default async function NemesisRivalryPage({ params }: Props) {
           {rounds.some(r => r.tiebreaker_applied) && (
             <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-500">
               <span>* הוכרע ע&quot;י מחשבון תיקו</span>
-              <div className="relative group">
+              <div className="relative group outline-none" tabIndex={0}>
                 <InfoIcon />
-                <div className="absolute bottom-full right-0 mb-1.5 w-56 rounded-lg bg-gray-800 border border-gray-700 p-3 text-gray-300 text-xs leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                <div className="absolute bottom-full right-0 mb-1.5 w-56 rounded-lg bg-gray-800 border border-gray-700 p-3 text-gray-300 text-xs leading-relaxed opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity pointer-events-none z-10">
                   <p className="font-semibold mb-1.5">כיצד מוכרע תיקו?</p>
                   <ol className="flex flex-col gap-1 list-decimal list-inside text-gray-400">
                     <li>פתרת והיריב לא — ניצחון</li>

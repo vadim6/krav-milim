@@ -11,6 +11,7 @@ interface SubmitBody {
   wordId:          string
   guess:           string
   previousHistory: GuessHistoryEntry[]
+  hardMode?:       boolean
 }
 
 /**
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
   }
 
-  const { wordId, guess, previousHistory } = body
+  const { wordId, guess, previousHistory, hardMode } = body
 
   // Basic input validation
   if (!wordId || !guess || typeof guess !== "string") {
@@ -80,6 +81,7 @@ export async function POST(request: Request) {
         guess_history:    newHistory as unknown as import("@/types/database").Json,
         revealed_letters: revealedLetters as unknown as import("@/types/database").Json,
         solved:           solved || false,
+        hard_mode:        hardMode ?? null,
       }],
       { onConflict: "user_id,word_id" },
     )
