@@ -51,7 +51,7 @@ export default async function RivalriesPage() {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">חבר׳ה</h2>
+          <h2 className="text-lg font-semibold">חבר׳ה - בשיפוצים 🚧👷‍♂️</h2>
           <Link href="/rivalries/chevre" className="text-sm text-green-600 hover:underline">
             הכל ←
           </Link>
