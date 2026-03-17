@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Heebo } from "next/font/google"
 import "./globals.css"
 
@@ -8,10 +8,18 @@ const heebo = Heebo({
   variable: "--font-heebo",
 })
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://krav-milim.com"),
   title: "קרב מילים",
-  description: "משחק ניחוש מילים תחרותי בעברית — מילה יומית אחת לכולם",
+  description: "קרב מילים הוא משחק ניחוש מילים יומי בעברית. נחש את המילה הסודית תוך שש ניחושים, השווה תוצאות עם שאר השחקנים, ועלה בדירוג היומי.",
+  alternates: {
+    canonical: "https://krav-milim.com",
+  },
   openGraph: {
     title: "קרב מילים",
     description: "משחק ניחוש מילים תחרותי בעברית — מילה יומית אחת לכולם",
@@ -40,7 +48,25 @@ export default function RootLayout({
         {/* Runs before first paint to set data-theme without flash */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var s=localStorage.getItem('krav-milim-theme');var d=s==='light'?'light':s==='dark'?'dark':window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',d)}catch(e){}})()` }} />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "קרב מילים",
+              applicationCategory: "GameApplication",
+              operatingSystem: "Web Browser",
+              inLanguage: "he",
+              url: "https://krav-milim.com",
+              description: "משחק ניחוש מילים יומי בעברית",
+              offers: { "@type": "Offer", price: "0", priceCurrency: "ILS" },
+            }),
+          }}
+        />
+      </body>
     </html>
   )
 }
