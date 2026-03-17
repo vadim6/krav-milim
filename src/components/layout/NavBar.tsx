@@ -26,8 +26,15 @@ export default async function NavBar() {
 
   const isAdmin = !!process.env.ADMIN_EMAIL && user?.email === process.env.ADMIN_EMAIL
 
+  const isDev = process.env.NODE_ENV === "development"
+
   return (
     <header className="border-b bg-white dark:bg-gray-900 sticky top-0 z-10">
+      {isDev && (
+        <div className="bg-red-600 text-white text-xs font-bold text-center py-0.5 tracking-widest select-none">
+          DEVELOPMENT INSTANCE
+        </div>
+      )}
       <nav className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link href="/game" className="flex items-center gap-2 shrink-0">
           <Image src={logo} alt="" height={44} priority />

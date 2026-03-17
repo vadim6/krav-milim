@@ -47,11 +47,11 @@ const TABS = [
   },
 ]
 
-export default function MobileNav() {
+export default function MobileNav({ isDev }: { isDev?: boolean }) {
   const pathname = usePathname()
 
   return (
-    <nav className="sm:hidden fixed bottom-0 inset-x-0 z-20 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 pb-safe">
+    <nav className={`sm:hidden fixed bottom-0 inset-x-0 z-20 bg-white dark:bg-gray-900 pb-safe border-t ${isDev ? "border-red-600 border-t-2" : "border-gray-200 dark:border-gray-700"}`}>
       <div className="flex">
         {TABS.map(({ href, label, icon }) => {
           const active = pathname.startsWith(href)
