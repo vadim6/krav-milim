@@ -13,13 +13,15 @@ export default async function AppLayout({
 
   if (!user) redirect("/")
 
+  const isDev = process.env.NODE_ENV === "development"
+
   return (
     <div className="flex min-h-dvh flex-col">
       <NavBar />
       <main className="flex-1 px-4 py-6 max-w-2xl mx-auto w-full pb-20 sm:pb-6">
         {children}
       </main>
-      <MobileNav />
+      <MobileNav isDev={isDev} />
     </div>
   )
 }
