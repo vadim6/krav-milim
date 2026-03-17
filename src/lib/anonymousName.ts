@@ -14,13 +14,19 @@ const ANIMALS = [
 
 const STORAGE_KEY = "krav-milim-demo-name"
 
+/** Generate a random AdjectiveAnimal name. Pure — no side effects. */
+export function generateAnonymousName(): string {
+  const adj    = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)]
+  const animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)]
+  return `${adj}${animal}`
+}
+
+/** Get (or generate + persist) the anonymous name for this browser session. */
 export function getAnonymousName(): string {
   if (typeof window === "undefined") return "Anonymous"
   const stored = localStorage.getItem(STORAGE_KEY)
   if (stored) return stored
-  const adj    = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)]
-  const animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)]
-  const name   = `${adj}${animal}`
+  const name = generateAnonymousName()
   localStorage.setItem(STORAGE_KEY, name)
   return name
 }
