@@ -1,5 +1,6 @@
 import { createServiceClient } from "@/lib/supabase/service"
 import DemoGameBoard from "@/components/game/DemoGameBoard"
+import AboutButton from "@/components/layout/AboutButton"
 import Link from "next/link"
 
 export default async function DemoPage() {
@@ -49,9 +50,12 @@ export default async function DemoPage() {
           ← חזרה
         </Link>
         <h1 className="text-xl font-bold">משחק נסיון</h1>
-        <Link href="/signup" className="text-sm text-green-500 hover:text-green-400 transition-colors font-medium">
-          הירשם
-        </Link>
+        <div className="flex items-center gap-2">
+          <AboutButton initialOpen showLabel />
+          <Link href="/signup" className="text-sm text-green-500 hover:text-green-400 transition-colors font-medium">
+            הירשם
+          </Link>
+        </div>
       </div>
 
       <p className="text-sm text-gray-500 text-center -mt-2">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
 import logo from "@/app/krav_milim_logo.png"
@@ -21,20 +21,22 @@ function LinkedInIcon() {
   )
 }
 
-export default function AboutButton() {
-  const [open, setOpen] = useState(false)
+export default function AboutButton({ initialOpen = false, showLabel = false }: { initialOpen?: boolean; showLabel?: boolean }) {
+  const [open, setOpen] = useState(initialOpen)
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   return (
     <>
       <button
         onClick={() => setOpen(true)}
         aria-label="אודות"
-        className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-base font-bold"
+        className="flex items-center gap-1 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors px-2 py-1 text-base font-bold"
       >
-        ?
+        {showLabel ? <span className="text-sm font-medium">הוראות</span> : "?"}
       </button>
 
-      {open && createPortal(
+      {mounted && open && createPortal(
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center p-4"
           onClick={() => setOpen(false)}
