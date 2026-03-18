@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect, useRef } from "react"
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -154,6 +154,23 @@ export default function NotificationSettings({
       await patch({ [field]: newValue } as Partial<Settings>)
     })
   }
+
+  // Poll for Telegram link confirmation while token is displayed
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  useEffect(() => {
+    if (!telegramToken || settings.telegram_chat_id) return
+    pollRef.current = setInterval(async () => {
+      const res = await fetch("/api/notifications/settings")
+      if (!res.ok) return
+      const data: Settings = await res.json()
+      if (data.telegram_chat_id) {
+        setSettings(data)
+        setTelegramToken(null)
+        clearInterval(pollRef.current!)
+      }
+    }, 3000)
+    return () => { if (pollRef.current) clearInterval(pollRef.current) }
+  }, [telegramToken, settings.telegram_chat_id])
 
   async function handleTelegramLink() {
     setTelegramPending(true)
