@@ -6,7 +6,7 @@ import GameRow from "./GameRow"
 import HebrewKeyboard from "./HebrewKeyboard"
 import GameStatus from "./GameStatus"
 import type { StatusText } from "@/lib/game/statusTexts"
-import { WIN_TEXTS, LOSS_TEXTS } from "@/lib/game/statusTexts"
+import { pickStatusText } from "@/lib/game/statusTexts"
 import { MAX_GUESSES } from "@/lib/game/constants"
 import { buildRevealedLetters } from "@/lib/game/engine"
 
@@ -33,16 +33,7 @@ export default function DemoGameBoard({ wordId }: Props) {
 
   useEffect(() => {
     if (state.gameStatus === "playing") return
-    const arr = state.gameStatus === "won" ? WIN_TEXTS : LOSS_TEXTS
-    const lsKey = `krav-milim-demo-status-${wordId}`
-    const stored = localStorage.getItem(lsKey)
-    if (stored !== null) {
-      const idx = parseInt(stored, 10)
-      if (!isNaN(idx) && idx < arr.length) { setStatusText(arr[idx]); return }
-    }
-    const idx = Math.floor(Math.random() * arr.length)
-    localStorage.setItem(lsKey, String(idx))
-    setStatusText(arr[idx])
+    setStatusText(pickStatusText(state.gameStatus as "won" | "lost", `krav-milim-demo-status-${wordId}`))
   }, [state.gameStatus, wordId])
 
   const animatingEntry      = state.isRevealing ? state.guesses[state.guesses.length - 1] : undefined

@@ -1,14 +1,43 @@
 "use client"
 
 import { useState } from "react"
+import GameStatus from "@/components/game/GameStatus"
+import { pickStatusText } from "@/lib/game/statusTexts"
+import type { StatusText } from "@/lib/game/statusTexts"
+import type { GuessHistoryEntry, TileState } from "@/types/shared"
 
 type ConfirmKey = "my_result" | "all_results" | "clean_test_data" | null
+
+const MOCK_TILE_ROWS: TileState[][] = [
+  ["absent",  "present", "absent",  "absent",  "correct"],
+  ["present", "absent",  "correct", "absent",  "correct"],
+  ["correct", "absent",  "correct", "present", "correct"],
+  ["correct", "correct", "absent",  "correct", "correct"],
+  ["absent",  "correct", "present", "absent",  "correct"],
+]
+
+function makeMockHistory(guessCount: number, won: boolean): GuessHistoryEntry[] {
+  return Array.from({ length: guessCount }, (_, i) => ({
+    guess: "שולחן",
+    result: (won && i === guessCount - 1)
+      ? (["correct", "correct", "correct", "correct", "correct"] as TileState[])
+      : MOCK_TILE_ROWS[i % MOCK_TILE_ROWS.length],
+  }))
+}
+
+interface PreviewState {
+  status:     "won" | "lost"
+  guessCount: number
+  history:    GuessHistoryEntry[]
+  statusText: StatusText
+}
 
 export default function AdminTestingClient({ isDev }: { isDev: boolean }) {
   const [confirming, setConfirming] = useState<ConfirmKey>(null)
   const [loading, setLoading]       = useState(false)
   const [message, setMessage]       = useState<string | null>(null)
   const [error, setError]           = useState<string | null>(null)
+  const [preview, setPreview]       = useState<PreviewState | null>(null)
 
   async function execute(target: "my_result" | "all_results" | "clean_test_data") {
     setLoading(true)
@@ -33,8 +62,20 @@ export default function AdminTestingClient({ isDev }: { isDev: boolean }) {
     setLoading(false)
   }
 
+  function showPreview(status: "won" | "lost") {
+    // Clear cached key so every click shows a fresh random combo
+    localStorage.removeItem("krav-milim-preview-status")
+    const guessCount = status === "won" ? Math.floor(Math.random() * 6) + 1 : 6
+    setPreview({
+      status,
+      guessCount,
+      history:    makeMockHistory(guessCount, status === "won"),
+      statusText: pickStatusText(status, "krav-milim-preview-status"),
+    })
+  }
+
   return (
-    <div className="max-w-lg flex flex-col gap-8">
+    <div className="relative max-w-lg flex flex-col gap-8">
       <h1 className="text-2xl font-bold">בדיקות</h1>
 
       <section className="bg-gray-900 rounded-xl p-5 flex flex-col gap-4">
@@ -158,6 +199,26 @@ export default function AdminTestingClient({ isDev }: { isDev: boolean }) {
               </button>
             )}
           </div>
+
+          <div className="flex flex-col gap-2 border-t border-gray-800 pt-4">
+            <p className="text-sm text-gray-500">
+              תצוגה מקדימה של פופ-אפ סיום משחק.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => showPreview("won")}
+                className="bg-green-800 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                פופ-אפ ניצחון
+              </button>
+              <button
+                onClick={() => showPreview("lost")}
+                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                פופ-אפ הפסד
+              </button>
+            </div>
+          </div>
         </section>
       )}
 
@@ -168,6 +229,18 @@ export default function AdminTestingClient({ isDev }: { isDev: boolean }) {
           <a href="/admin/words" className="hover:text-white transition-colors">← ניהול מילים</a>
         </div>
       </section>
+
+      {preview && (
+        <GameStatus
+          status={preview.status}
+          guessCount={preview.guessCount}
+          guessHistory={preview.history}
+          answer="שולחן"
+          statusText={preview.statusText}
+          streakData={{ currentStreak: 3, bestStreak: 7 }}
+          onDismiss={() => setPreview(null)}
+        />
+      )}
     </div>
   )
 }
