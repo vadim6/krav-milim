@@ -1,8 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/service"
 import { redirect } from "next/navigation"
 import UsernameEditor from "@/components/profile/UsernameEditor"
 import AvatarDisplay from "@/components/avatar/AvatarDisplay"
 import AvatarBuilder from "@/components/avatar/AvatarBuilder"
+import NotificationSettings from "@/components/profile/NotificationSettings"
 import type { AvatarConfig } from "@/lib/avatar/styles"
 
 export default async function ProfilePage() {
@@ -10,9 +12,14 @@ export default async function ProfilePage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/")
 
-  const [{ data: profile }, { data: alltimeRow }] = await Promise.all([
+  const service = createServiceClient()
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const svc = service as any
+  const [{ data: profile }, { data: alltimeRow }, { data: notifSettings }] = await Promise.all([
     supabase.from("users").select("username, avatar_url, created_at, username_changed_at, avatar_config").eq("id", user.id).single(),
     supabase.from("leaderboard_alltime").select("*").eq("user_id", user.id).single(),
+    svc.from("notification_settings").select("telegram_chat_id, discord_webhook_url, slack_webhook_url, email_enabled, notify_daily_reminder, notify_rival_solved, reminder_hour").eq("user_id", user.id).maybeSingle(),
   ])
 
   async function signOut() {
@@ -51,6 +58,13 @@ export default async function ProfilePage() {
           <Stat label="דירוג גלובלי" value={`#${alltimeRow.rank}`} />
         </div>
       )}
+
+      <NotificationSettings
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        initialSettings={(notifSettings as any) ?? null}
+        userEmail={user.email ?? ""}
+        botName={process.env.TELEGRAM_BOT_NAME ?? "KravMilimBot"}
+      />
 
       <form action={signOut}>
         <button
