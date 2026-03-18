@@ -92,15 +92,100 @@ export async function DELETE(req: NextRequest) {
  *   Only works in NODE_ENV=development.
  */
 export async function POST(req: NextRequest) {
-  if (process.env.NODE_ENV !== "development") {
-    return NextResponse.json({ error: "Only available in development" }, { status: 403 })
-  }
-
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!isAdmin(user?.email)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const target = req.nextUrl.searchParams.get("target")
+
+  // ── Email test — available in all environments ──────────────────────────────
+  if (target === "test_email") {
+    const { sendEmail } = await import("@/lib/notifications/send")
+    const to = user!.email!
+    try {
+      await sendEmail(
+        to,
+        "📧 בדיקת אימייל — קרב מילים",
+        `<p dir="rtl">זוהי הודעת בדיקה מקרב מילים. אם קיבלת הודעה זו, שילוב האימייל עובד כראוי ✅</p>`,
+      )
+    } catch (e) {
+      return NextResponse.json({ error: e instanceof Error ? e.message : "Send failed" }, { status: 502 })
+    }
+    return NextResponse.json({ ok: true, message: `אימייל בדיקה נשלח ל-${to}` })
+  }
+
+  // ── Daily reminder test — available in all environments ────────────────────
+  if (target === "test_daily_reminder") {
+    const { sendNotification } = await import("@/lib/notifications/send")
+    try {
+      await sendNotification(user!.id, "daily_reminder", {
+        message: "🎯 [בדיקה] זמן לשחק! המילה היומית מחכה לך.",
+        emailSubject: "[בדיקה] תזכורת יומית — קרב מילים",
+        emailHtml: `<p dir="rtl">[הודעת בדיקה] המילה היומית עדיין מחכה לך. <a href="https://krav-milim.com/game">לחץ כאן לשחק</a>.</p>`,
+      })
+    } catch (e) {
+      return NextResponse.json({ error: e instanceof Error ? e.message : "Send failed" }, { status: 502 })
+    }
+    return NextResponse.json({ ok: true, message: "תזכורת בדיקה נשלחה לכל הערוצים המוגדרים שלך" })
+  }
+
+  // ── Force cron run — runs full cron logic but skips hour filter ─────────────
+  if (target === "force_cron_reminder") {
+    const { sendNotification } = await import("@/lib/notifications/send")
+    const service = createServiceClient()
+    const today   = new Date().toISOString().split("T")[0]
+
+    const { data: todayWord } = await service
+      .from("words")
+      .select("id")
+      .eq("source", "daily_global")
+      .eq("date", today)
+      .maybeSingle()
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const svc = service as any
+
+    // All users with daily reminders on, not yet reminded today, at least one channel
+    const { data: settings } = await svc
+      .from("notification_settings")
+      .select("user_id")
+      .eq("notify_daily_reminder", true)
+      .or(`last_reminder_sent_date.is.null,last_reminder_sent_date.neq.${today}`)
+
+    if (!settings?.length) {
+      return NextResponse.json({ ok: true, message: "אין משתמשים מוגדרים לתזכורות יומיות" })
+    }
+
+    let sent = 0
+    for (const row of settings) {
+      if (todayWord) {
+        const { data: played } = await service
+          .from("game_results")
+          .select("id")
+          .eq("user_id", row.user_id)
+          .eq("word_id", todayWord.id)
+          .maybeSingle()
+        if (played) continue
+      }
+      await sendNotification(row.user_id, "daily_reminder", {
+        message: "🎯 [cron-test] זמן לשחק! המילה היומית מחכה לך.",
+        emailSubject: "[cron-test] תזכורת יומית — קרב מילים",
+        emailHtml: `<p dir="rtl">[cron-test] המילה היומית עדיין מחכה לך. <a href="https://krav-milim.com/game">לחץ כאן לשחק</a>.</p>`,
+      })
+      await svc
+        .from("notification_settings")
+        .update({ last_reminder_sent_date: today })
+        .eq("user_id", row.user_id)
+      sent++
+    }
+    return NextResponse.json({ ok: true, message: `נשלחו ${sent} תזכורות (ללא סינון שעה)` })
+  }
+
+  // ── Dev-only targets ────────────────────────────────────────────────────────
+  if (process.env.NODE_ENV !== "development") {
+    return NextResponse.json({ error: "Only available in development" }, { status: 403 })
+  }
+
   if (target !== "seed_leaderboard") return NextResponse.json({ error: "Unknown target" }, { status: 400 })
 
   const service = createServiceClient()

@@ -5,6 +5,7 @@ import { evaluateGuess, buildRevealedLetters } from "@/lib/game/engine"
 import { isHebrewWord, normalizeWord } from "@/lib/game/hebrew"
 import { isValidWord } from "@/lib/game/wordlist"
 import { WORD_LENGTH, MAX_GUESSES } from "@/lib/game/constants"
+import { sendNotification } from "@/lib/notifications/send"
 import type { GuessHistoryEntry, TileState } from "@/types/shared"
 
 interface SubmitBody {
@@ -100,6 +101,8 @@ export async function POST(request: Request) {
     if (upserted) {
       await recordNemesisScores(user.id, wordId, upserted.id, serviceClient)
     }
+    // Fire-and-forget: notify rivals that this user has submitted
+    notifyRivalsOfSolve(user.id, serviceClient)
   }
 
   return NextResponse.json({
@@ -188,5 +191,40 @@ async function recordNemesisScores(
         }],
         { onConflict: "rivalry_id,word_id", ignoreDuplicates: false },
       )
+  }
+}
+
+/**
+ * Fire-and-forget: notify all nemesis rivals that userId has submitted their result.
+ * Never throws — failures are silently swallowed.
+ */
+async function notifyRivalsOfSolve(userId: string, service: ServiceClient) {
+  try {
+    const { data: rivalries } = await service
+      .from("nemesis_rivalries")
+      .select("challenger_id, receiver_id")
+      .eq("status", "active")
+      .or(`challenger_id.eq.${userId},receiver_id.eq.${userId}`)
+
+    if (!rivalries?.length) return
+
+    const { data: solver } = await service
+      .from("users")
+      .select("username")
+      .eq("id", userId)
+      .single()
+
+    const username = solver?.username ?? "יריב"
+
+    await Promise.allSettled(
+      rivalries.map((r) => {
+        const rivalId = r.challenger_id === userId ? r.receiver_id : r.challenger_id
+        return sendNotification(rivalId, "rival_solved", {
+          message: `⚔️ ${username} כבר פתר את המילה היומית — תמהר לפתור לפני שיעקוף אותך!`,
+        })
+      }),
+    )
+  } catch {
+    // ignore
   }
 }
