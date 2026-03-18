@@ -7,7 +7,7 @@ import HebrewKeyboard from "./HebrewKeyboard"
 import GameStatus from "./GameStatus"
 import type { GuessHistoryEntry, RevealedLetters } from "@/types/shared"
 import type { StatusText } from "@/lib/game/statusTexts"
-import { WIN_TEXTS, LOSS_TEXTS } from "@/lib/game/statusTexts"
+import { pickStatusText } from "@/lib/game/statusTexts"
 import { MAX_GUESSES } from "@/lib/game/constants"
 import { buildRevealedLetters } from "@/lib/game/engine"
 
@@ -61,16 +61,7 @@ export default function GameBoard({ wordId, existingResult, initialStreakData }:
 
   useEffect(() => {
     if (state.gameStatus === "playing") return
-    const arr = state.gameStatus === "won" ? WIN_TEXTS : LOSS_TEXTS
-    const lsKey = `krav-milim-status-${wordId}`
-    const stored = localStorage.getItem(lsKey)
-    if (stored !== null) {
-      const idx = parseInt(stored, 10)
-      if (!isNaN(idx) && idx < arr.length) { setStatusText(arr[idx]); return }
-    }
-    const idx = Math.floor(Math.random() * arr.length)
-    localStorage.setItem(lsKey, String(idx))
-    setStatusText(arr[idx])
+    setStatusText(pickStatusText(state.gameStatus as "won" | "lost", `krav-milim-status-${wordId}`))
   }, [state.gameStatus, wordId])
 
   // When revealing, compute the keyboard's "before" state so keys can stagger in sync with tiles
