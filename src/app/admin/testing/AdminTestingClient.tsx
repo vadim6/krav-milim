@@ -222,6 +222,67 @@ export default function AdminTestingClient({ isDev }: { isDev: boolean }) {
         </section>
       )}
 
+      <section className="bg-gray-900 rounded-xl p-5 flex flex-col gap-4">
+        <h2 className="font-semibold text-gray-300">בדיקת התראות</h2>
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-gray-500">
+            שלח תזכורת יומית לכל הערוצים המוגדרים בפרופיל שלך (Telegram, Discord, Slack, אימייל).
+            בודק את כל הצינור — הגדרות, שליחה, קבלה.
+          </p>
+          <button
+            onClick={async () => {
+              setLoading(true); setMessage(null); setError(null)
+              const res = await fetch("/api/admin/testing?target=test_daily_reminder", { method: "POST" })
+              const data = await res.json()
+              if (res.ok) setMessage(data.message); else setError(data.error)
+              setLoading(false)
+            }}
+            disabled={loading}
+            className="self-start bg-green-700 hover:bg-green-600 disabled:opacity-50 text-white px-5 py-2 rounded-lg font-medium transition-colors"
+          >
+            שלח תזכורת בדיקה
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-2 border-t border-gray-800 pt-4">
+          <p className="text-sm text-gray-500">
+            הרץ את ה-cron ידנית — שולח תזכורת לכל המשתמשים שלא שיחקו היום, ללא סינון שעה.
+          </p>
+          <button
+            onClick={async () => {
+              setLoading(true); setMessage(null); setError(null)
+              const res = await fetch("/api/admin/testing?target=force_cron_reminder", { method: "POST" })
+              const data = await res.json()
+              if (res.ok) setMessage(data.message); else setError(data.error)
+              setLoading(false)
+            }}
+            disabled={loading}
+            className="self-start bg-indigo-700 hover:bg-indigo-600 disabled:opacity-50 text-white px-5 py-2 rounded-lg font-medium transition-colors"
+          >
+            הרץ cron ידנית (ללא סינון שעה)
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-2 border-t border-gray-800 pt-4">
+          <p className="text-sm text-gray-500">שלח אימייל בדיקה בלבד לכתובת שלך דרך Resend.</p>
+          <button
+            onClick={async () => {
+              setLoading(true); setMessage(null); setError(null)
+              const res = await fetch("/api/admin/testing?target=test_email", { method: "POST" })
+              const data = await res.json()
+              if (res.ok) setMessage(data.message); else setError(data.error)
+              setLoading(false)
+            }}
+            disabled={loading}
+            className="self-start bg-blue-700 hover:bg-blue-600 disabled:opacity-50 text-white px-5 py-2 rounded-lg font-medium transition-colors"
+          >
+            שלח אימייל בדיקה
+          </button>
+        </div>
+        {message && <p className="text-green-400 text-sm">{message}</p>}
+        {error   && <p className="text-red-400 text-sm">{error}</p>}
+      </section>
+
       <section className="bg-gray-900 rounded-xl p-5 flex flex-col gap-3">
         <h2 className="font-semibold text-gray-300">קיצורי דרך</h2>
         <div className="flex flex-col gap-2 text-sm text-gray-400">
