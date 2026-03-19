@@ -13,16 +13,27 @@ interface Stats {
   wordsScheduled: number
 }
 
+interface ConfigWarning {
+  key: string
+  label: string
+  description: string
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [wordRevealed, setWordRevealed] = useState(false)
+  const [configWarnings, setConfigWarnings] = useState<ConfigWarning[]>([])
 
   useEffect(() => {
     fetch("/api/admin/stats")
       .then(r => r.json())
       .then(data => { setStats(data); setLoading(false) })
       .catch(() => setLoading(false))
+    fetch("/api/admin/config-check")
+      .then(r => r.json())
+      .then(data => { if (data.warnings) setConfigWarnings(data.warnings) })
+      .catch(() => {})
   }, [])
 
   return (
@@ -78,6 +89,19 @@ export default function AdminDashboard() {
             </div>
           )}
         </>
+      )}
+
+      {configWarnings.length > 0 && (
+        <div className="bg-red-900/30 border border-red-700 rounded-xl p-4 flex flex-col gap-2">
+          <p className="text-red-400 text-sm font-semibold">⚠️ הגדרות חסרות</p>
+          <ul className="flex flex-col gap-1.5">
+            {configWarnings.map(w => (
+              <li key={w.key} className="text-sm text-red-300">
+                <span className="font-mono font-medium">{w.key}</span> — {w.description}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {/* Quick links */}

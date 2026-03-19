@@ -102,7 +102,7 @@ export async function POST(request: Request) {
       await recordNemesisScores(user.id, wordId, upserted.id, serviceClient)
     }
     // Fire-and-forget: notify rivals that this user has submitted
-    notifyRivalsOfSolve(user.id, serviceClient)
+    notifyRivalsOfSolve(user.id, wordId, serviceClient)
   }
 
   return NextResponse.json({
@@ -198,7 +198,7 @@ async function recordNemesisScores(
  * Fire-and-forget: notify all nemesis rivals that userId has submitted their result.
  * Never throws — failures are silently swallowed.
  */
-async function notifyRivalsOfSolve(userId: string, service: ServiceClient) {
+async function notifyRivalsOfSolve(userId: string, wordId: string, service: ServiceClient) {
   try {
     const { data: rivalries } = await service
       .from("nemesis_rivalries")
@@ -207,6 +207,22 @@ async function notifyRivalsOfSolve(userId: string, service: ServiceClient) {
       .or(`challenger_id.eq.${userId},receiver_id.eq.${userId}`)
 
     if (!rivalries?.length) return
+
+    const rivalIds = rivalries.map((r) =>
+      r.challenger_id === userId ? r.receiver_id : r.challenger_id
+    )
+
+    // Only notify rivals who haven't finished today's word yet
+    const { data: alreadyPlayed } = await service
+      .from("game_results")
+      .select("user_id")
+      .eq("word_id", wordId)
+      .in("user_id", rivalIds)
+
+    const alreadyPlayedIds = new Set((alreadyPlayed ?? []).map((r) => r.user_id))
+    const toNotify = rivalIds.filter((id) => !alreadyPlayedIds.has(id))
+
+    if (!toNotify.length) return
 
     const { data: solver } = await service
       .from("users")
@@ -217,12 +233,11 @@ async function notifyRivalsOfSolve(userId: string, service: ServiceClient) {
     const username = solver?.username ?? "יריב"
 
     await Promise.allSettled(
-      rivalries.map((r) => {
-        const rivalId = r.challenger_id === userId ? r.receiver_id : r.challenger_id
-        return sendNotification(rivalId, "rival_solved", {
+      toNotify.map((rivalId) =>
+        sendNotification(rivalId, "rival_solved", {
           message: `⚔️ ${username} כבר פתר את המילה היומית — תמהר לפתור לפני שיעקוף אותך!`,
         })
-      }),
+      ),
     )
   } catch {
     // ignore
