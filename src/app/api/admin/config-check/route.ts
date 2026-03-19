@@ -66,7 +66,7 @@ export async function GET() {
   // Check Telegram webhook registration
   if (process.env.TELEGRAM_BOT_TOKEN) {
     try {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://krav-milim.com"
+      const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://krav-milim.com").replace(/\/$/, "")
       const expectedWebhook = `${appUrl}/api/notifications/telegram/webhook`
       const tgRes = await fetch(
         `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getWebhookInfo`
