@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { computeNemesisOutcome } from "@/lib/rivalries/nemesis"
 import type { PlayerResult } from "@/lib/rivalries/nemesis"
+import type { TileState } from "@/types/shared"
 
 function makePlayer(overrides: Partial<PlayerResult> & { userId: string }): PlayerResult {
   return {
@@ -122,8 +123,8 @@ describe("computeNemesisOutcome", () => {
 
   it("tier 4: draw when everything is equal", () => {
     const history = [
-      { guess: "אבגדה", result: ["correct", "absent", "absent", "absent", "absent"] as const },
-      { guess: "אוזחט", result: ["correct", "correct", "correct", "correct", "correct"] as const },
+      { guess: "אבגדה", result: ["correct", "absent", "absent", "absent", "absent"] as TileState[] },
+      { guess: "אוזחט", result: ["correct", "correct", "correct", "correct", "correct"] as TileState[] },
     ]
     const revealed = { correct: ["א"], present: [], absent: ["ב"] }
     const a = makePlayer({ userId: "a", guesses: 2, revealedLetters: revealed, guessHistory: history })
