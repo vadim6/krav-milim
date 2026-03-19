@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { evaluateGuess, buildRevealedLetters, countGreensBeforeFinal } from "@/lib/game/engine"
+import { evaluateGuess, buildRevealedLetters, countGreensBeforeFinal, countRevealedLetters } from "@/lib/game/engine"
 import type { GuessHistoryEntry } from "@/types/shared"
 
 // ─── evaluateGuess ────────────────────────────────────────────────────────────
@@ -49,6 +49,18 @@ describe("evaluateGuess", () => {
     const result = evaluateGuess("אבאגד", "אאבגד")
     expect(result[0]).toBe("correct")
     expect(result[2]).toBe("present") // א appears at pos 1 in answer, not pos 2
+  })
+})
+
+// ─── countRevealedLetters ─────────────────────────────────────────────────────
+
+describe("countRevealedLetters", () => {
+  it("returns 0 for empty sets", () => {
+    expect(countRevealedLetters({ correct: [], present: [], absent: [] })).toBe(0)
+  })
+
+  it("sums correct and present, ignores absent", () => {
+    expect(countRevealedLetters({ correct: ["א", "ב"], present: ["ג"], absent: ["ד", "ה"] })).toBe(3)
   })
 })
 

@@ -38,21 +38,22 @@ CREATE TABLE telegram_link_tokens (
 CREATE INDEX telegram_link_tokens_expires_at_idx ON telegram_link_tokens (expires_at);
 
 -- ── pg_cron: hourly daily-reminder job ────────────────────────────────────────
--- Calls the Next.js cron endpoint once per hour; the route itself filters
--- by each user's preferred reminder_hour (Israel local time).
--- Requires pg_net and pg_cron extensions (already enabled in this project).
-
-SELECT cron.schedule(
-  'daily-reminder',
-  '0 * * * *',
-  $$
-    SELECT net.http_post(
-      url     := current_setting('app.base_url') || '/api/cron/daily-reminder',
-      headers := jsonb_build_object(
-        'Authorization', 'Bearer ' || current_setting('app.cron_secret'),
-        'Content-Type',  'application/json'
-      ),
-      body    := '{}'::jsonb
-    )
-  $$
-);
+-- Must be created manually in the Supabase SQL editor (Supabase hosted does not
+-- allow setting custom GUC parameters, so current_setting() cannot be used).
+-- Run once after deploying:
+--
+--   SELECT cron.unschedule('daily-reminder');  -- if it already exists
+--   SELECT cron.schedule(
+--     'daily-reminder',
+--     '0 * * * *',
+--     $$
+--       SELECT net.http_post(
+--         url     := 'https://krav-milim.com/api/cron/daily-reminder',
+--         headers := jsonb_build_object(
+--           'Authorization', 'Bearer <CRON_SECRET>',
+--           'Content-Type',  'application/json'
+--         ),
+--         body    := '{}'::jsonb
+--       )
+--     $$
+--   );
