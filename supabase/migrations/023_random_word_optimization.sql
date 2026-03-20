@@ -20,7 +20,7 @@ BEGIN
     LIMIT 1
   );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE OR REPLACE FUNCTION pick_word_for_date(target_date date) RETURNS void AS $$
 BEGIN
@@ -36,4 +36,4 @@ BEGIN
     LIMIT 1
   );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
