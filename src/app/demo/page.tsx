@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { createServiceClient } from "@/lib/supabase/service"
 import DemoGameBoard from "@/components/game/DemoGameBoard"
 import AboutButton from "@/components/layout/AboutButton"

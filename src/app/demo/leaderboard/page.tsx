@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { createServiceClient } from "@/lib/supabase/service"
 import DemoLeaderboardTable from "@/components/leaderboard/DemoLeaderboardTable"
 import Link from "next/link"
