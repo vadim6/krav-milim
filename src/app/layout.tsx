@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import { Heebo } from "next/font/google"
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 
 const heebo = Heebo({
@@ -50,6 +52,8 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         {children}
+        <Analytics />
+        <SpeedInsights />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
