@@ -37,7 +37,7 @@ export default async function NavBar() {
       )}
       <nav className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link href="/game" className="flex items-center gap-2 shrink-0">
-          <Image src={logo} alt="" height={44} priority />
+          <Image src={logo} alt="" width={logo.width} height={logo.height} className="h-11 w-auto" priority />
           <span className="text-lg font-bold">קרב מילים</span>
         </Link>
 

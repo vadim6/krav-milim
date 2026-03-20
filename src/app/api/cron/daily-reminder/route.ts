@@ -10,7 +10,7 @@ import { sendNotification } from "@/lib/notifications/send"
  *
  * Protected by Authorization: Bearer <CRON_SECRET>
  */
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   const cronSecret = process.env.CRON_SECRET
   if (!cronSecret) {
     return NextResponse.json({ error: "CRON_SECRET not configured" }, { status: 500 })
@@ -23,11 +23,12 @@ export async function GET(req: NextRequest) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const svc = service as any
 
-  // Get current Israel hour
+  // Get current Israel date and hour
   const israelNow = new Date().toLocaleString("en-US", { timeZone: "Asia/Jerusalem" })
   const currentHour = new Date(israelNow).getHours()
 
-  const today = new Date().toISOString().split("T")[0]
+  // Use Israel date (YYYY-MM-DD) to avoid UTC/Israel midnight mismatch
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Jerusalem" })
 
   // Find today's global daily word
   const { data: todayWord } = await service

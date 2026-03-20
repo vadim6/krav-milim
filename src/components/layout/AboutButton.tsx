@@ -46,7 +46,7 @@ export default function AboutButton({ initialOpen = false, showLabel = false }: 
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-center mb-4">
-              <Image src={logo} alt="קרב מילים" height={128} />
+              <Image src={logo} alt="קרב מילים" width={logo.width} height={logo.height} className="h-32 w-auto" />
             </div>
             <h2 className="text-xl font-bold mb-4">אודות קרב מילים</h2>
             <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
