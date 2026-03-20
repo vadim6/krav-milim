@@ -27,7 +27,7 @@
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "supabase": "^2.77.1",
+    "supabase": "^2.83.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.0"
