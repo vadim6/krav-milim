@@ -12,11 +12,11 @@ import { sendNotification } from "@/lib/notifications/send"
  */
 export async function GET(req: NextRequest) {
   const cronSecret = process.env.CRON_SECRET
-  if (cronSecret) {
-    const authHeader = req.headers.get("authorization")
-    if (authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-    }
+  if (!cronSecret) {
+    return NextResponse.json({ error: "CRON_SECRET not configured" }, { status: 500 })
+  }
+  if (req.headers.get("authorization") !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
   const service = createServiceClient()

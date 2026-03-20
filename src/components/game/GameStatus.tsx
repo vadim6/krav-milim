@@ -29,7 +29,7 @@ export default function GameStatus({ status, guessCount, guessHistory, answer, s
   const dateStr = new Date().toLocaleDateString("he-IL", { day: "numeric", month: "numeric", year: "numeric" })
   const attemptsLine = status === "won"
     ? `${guessCount} מתוך 6 ניסיונות`
-    : `6 מתוך 6 ניסיונות`
+    : `\u200FX מתוך 6 ניסיונות`
 
   const shareText =
     `קרב מילים — ${dateStr}\n\n` +
