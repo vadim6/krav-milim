@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
     const { sendNotification } = await import("@/lib/notifications/send")
     try {
       await sendNotification(user!.id, "daily_reminder", {
-        message: "🎯 [בדיקה] זמן לשחק! המילה היומית מחכה לך.",
+        message: "🎯 [בדיקה] זמן לשחק! המילה היומית מחכה לך.\nhttps://krav-milim.com/game",
         emailSubject: "[בדיקה] תזכורת יומית — קרב מילים",
         emailHtml: `<p dir="rtl">[הודעת בדיקה] המילה היומית עדיין מחכה לך. <a href="https://krav-milim.com/game">לחץ כאן לשחק</a>.</p>`,
       })
@@ -168,7 +168,7 @@ export async function POST(req: NextRequest) {
         if (played) continue
       }
       await sendNotification(row.user_id, "daily_reminder", {
-        message: "🎯 [cron-test] זמן לשחק! המילה היומית מחכה לך.",
+        message: "🎯 [cron-test] זמן לשחק! המילה היומית מחכה לך.\nhttps://krav-milim.com/game",
         emailSubject: "[cron-test] תזכורת יומית — קרב מילים",
         emailHtml: `<p dir="rtl">[cron-test] המילה היומית עדיין מחכה לך. <a href="https://krav-milim.com/game">לחץ כאן לשחק</a>.</p>`,
       })

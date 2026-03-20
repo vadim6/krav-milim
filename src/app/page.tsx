@@ -10,7 +10,7 @@ export default async function HomePage() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-8 p-8 text-center">
       <div className="flex flex-col items-center gap-2">
-        <Image src={logo} alt="קרב מילים" width={350} priority />
+        <Image src={logo} alt="קרב מילים" width={logo.width} height={logo.height} className="w-[350px] h-auto" priority />
         <h1 className="text-5xl font-bold tracking-tight">קרב מילים</h1>
         <p className="text-lg text-gray-500">משחק ניחוש מילים תחרותי בעברית</p>
       </div>
