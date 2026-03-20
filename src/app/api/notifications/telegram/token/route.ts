@@ -23,8 +23,8 @@ export async function POST() {
     .delete()
     .eq("user_id", user.id)
 
-  // Generate a 6-digit token
-  const token = String(Math.floor(100000 + Math.random() * 900000))
+  // Generate a cryptographically secure 6-digit token
+  const token = String(100000 + (new Uint32Array(crypto.getRandomValues(new Uint32Array(1)))[0] % 900000))
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString() // 10 minutes
 
   const { error } = await svc

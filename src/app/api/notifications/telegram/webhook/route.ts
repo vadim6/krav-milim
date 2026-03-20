@@ -15,9 +15,11 @@ import { sendTelegram } from "@/lib/notifications/send"
  */
 export async function POST(req: NextRequest) {
   // Validate secret token from Telegram
-  const secretToken = req.headers.get("x-telegram-bot-api-secret-token")
   const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET
-  if (expectedSecret && secretToken !== expectedSecret) {
+  if (!expectedSecret) {
+    return NextResponse.json({ error: "TELEGRAM_WEBHOOK_SECRET not configured" }, { status: 500 })
+  }
+  if (req.headers.get("x-telegram-bot-api-secret-token") !== expectedSecret) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 

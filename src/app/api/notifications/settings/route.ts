@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceClient } from "@/lib/supabase/service"
 
+function isValidWebhookUrl(url: string, requiredHost: string): boolean {
+  try {
+    const { protocol, hostname } = new URL(url)
+    return protocol === "https:" && (hostname === requiredHost || hostname.endsWith(`.${requiredHost}`))
+  } catch {
+    return false
+  }
+}
+
 /** GET /api/notifications/settings — returns the current user's notification_settings row */
 export async function GET() {
   const supabase = await createClient()
@@ -50,6 +59,9 @@ export async function PATCH(req: NextRequest) {
     if (v !== null && typeof v !== "string") {
       return NextResponse.json({ error: "discord_webhook_url must be string or null" }, { status: 400 })
     }
+    if (v !== null && !isValidWebhookUrl(v, "discord.com")) {
+      return NextResponse.json({ error: "discord_webhook_url must be an https://discord.com webhook URL" }, { status: 400 })
+    }
     updates.discord_webhook_url = v
   }
 
@@ -57,6 +69,9 @@ export async function PATCH(req: NextRequest) {
     const v = body.slack_webhook_url
     if (v !== null && typeof v !== "string") {
       return NextResponse.json({ error: "slack_webhook_url must be string or null" }, { status: 400 })
+    }
+    if (v !== null && !isValidWebhookUrl(v, "hooks.slack.com")) {
+      return NextResponse.json({ error: "slack_webhook_url must be an https://hooks.slack.com webhook URL" }, { status: 400 })
     }
     updates.slack_webhook_url = v
   }
