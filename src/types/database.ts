@@ -461,6 +461,54 @@ export type Database = {
           },
         ]
       }
+      leaderboard_weekly: {
+        Row: {
+          avatar_url: string | null
+          avatar_config: Json | null
+          avg_guesses: number | null
+          games_played: number | null
+          gibor_badge: boolean | null
+          perfect_games: number | null
+          rank: number | null
+          user_id: string | null
+          username: string | null
+          win_rate: number | null
+          wins: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leaderboard_monthly: {
+        Row: {
+          avatar_url: string | null
+          avatar_config: Json | null
+          avg_guesses: number | null
+          games_played: number | null
+          gibor_badge: boolean | null
+          perfect_games: number | null
+          rank: number | null
+          user_id: string | null
+          username: string | null
+          win_rate: number | null
+          wins: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       nemesis_summary: {
         Row: {
           challenger_id: string | null

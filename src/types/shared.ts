@@ -36,4 +36,6 @@ export interface SeekerResult {
 // ── View row convenience types ───────────────────────────────
 export type LeaderboardGlobalRow  = Database["public"]["Views"]["leaderboard_global"]["Row"]
 export type LeaderboardAlltimeRow = Database["public"]["Views"]["leaderboard_alltime"]["Row"]
+export type LeaderboardWeeklyRow  = Database["public"]["Views"]["leaderboard_weekly"]["Row"]
+export type LeaderboardMonthlyRow = Database["public"]["Views"]["leaderboard_monthly"]["Row"]
 export type NemesisSummaryRow     = Database["public"]["Views"]["nemesis_summary"]["Row"]
