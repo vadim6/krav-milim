@@ -9,12 +9,19 @@ export default async function RivalriesPage() {
     supabase
       .from("nemesis_summary")
       .select("*")
-      .or(`challenger_id.eq.${user!.id},receiver_id.eq.${user!.id}`),
+      .or(`challenger_id.eq.${user!.id},receiver_id.eq.${user!.id}`)
+      .in("status", ["active", "pending"])
+      .order("rounds_played", { ascending: false }),
     supabase
       .from("chevre_groups")
       .select("id, name, threshold_pct, invite_code, chevre_members(count)")
       .order("created_at", { ascending: false }),
   ])
+
+  const pendingIncoming = nemesisRivalries?.filter(
+    (r) => r.status === "pending" && r.receiver_id === user!.id
+  ) ?? []
+  const activeRivalries = nemesisRivalries?.filter((r) => r.status === "active") ?? []
 
   return (
     <div className="space-y-8">
@@ -27,8 +34,24 @@ export default async function RivalriesPage() {
             הכל ←
           </Link>
         </div>
-        {nemesisRivalries?.length ? (
-          nemesisRivalries.slice(0, 3).map((r) => (
+
+        {pendingIncoming.length > 0 && (
+          <div className="flex flex-col gap-2">
+            {pendingIncoming.map((r) => (
+              <Link
+                key={r.rivalry_id}
+                href="/rivalries/nemesis"
+                className="flex items-center justify-between rounded-xl border border-yellow-700 bg-yellow-950/30 px-4 py-3 hover:bg-yellow-950/50 transition-colors"
+              >
+                <span className="font-medium text-yellow-300">{r.challenger_username} מאתגר אותך</span>
+                <span className="text-xs text-yellow-500">ממתין לתגובה</span>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {activeRivalries.length ? (
+          activeRivalries.slice(0, 3).map((r) => (
             <Link
               key={r.rivalry_id}
               href={`/rivalries/nemesis/${r.rivalry_id}`}
@@ -44,9 +67,9 @@ export default async function RivalriesPage() {
               </span>
             </Link>
           ))
-        ) : (
+        ) : pendingIncoming.length === 0 ? (
           <p className="text-sm text-gray-400">אין יריבויות נמסיס עדיין</p>
-        )}
+        ) : null}
       </section>
 
       <section className="space-y-3">
