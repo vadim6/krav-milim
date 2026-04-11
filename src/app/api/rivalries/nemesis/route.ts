@@ -25,7 +25,7 @@ export async function GET() {
   return NextResponse.json({
     pending_incoming: all.filter(r => r.status === "pending" && r.receiver_id === user.id),
     pending_outgoing: all.filter(r => r.status === "pending" && r.challenger_id === user.id),
-    active:           all.filter(r => r.status === "active"),
+    active:           all.filter(r => r.status === "active").sort((a, b) => (b.rounds_played ?? 0) - (a.rounds_played ?? 0)),
   })
 }
 
