@@ -1,13 +1,15 @@
--- ============================================================
--- Weekly & Monthly Leaderboard Views
--- Gives new players a fair chance to compete on shorter windows,
--- not just all-time cumulative stats.
--- ============================================================
+-- Must drop and recreate (not CREATE OR REPLACE) because new columns are inserted
+-- mid-list, which Postgres forbids in OR REPLACE. CASCADE is safe — nothing depends on these views.
+DROP VIEW IF EXISTS leaderboard_weekly CASCADE;
+DROP VIEW IF EXISTS leaderboard_monthly CASCADE;
 
--- Weekly leaderboard: aggregates results for the current Sun–Sat week.
--- date_trunc('week') gives Monday; shifting +1 day before truncating and -1 after
--- converts that to Sunday start.
--- Ranks by: wins DESC, avg_guesses ASC, perfect_games DESC, games_played DESC
+-- Replace weekly/monthly views to:
+-- 1. Add current_streak to SELECT (used as tiebreaker tier 3 replacing perfect_games)
+-- 2. Add perfect_week flag (wins = 7 — all 7 days solved this week)
+-- 3. Add perfect_month_running flag (wins = days elapsed this month AND wins >= 7)
+-- 4. Add perfect_month_full flag (wins = total days in month — full perfect month)
+-- perfect_games is kept in SELECT for future use but removed from ORDER BY.
+
 CREATE VIEW leaderboard_weekly AS
 WITH week_bounds AS (
   SELECT
@@ -20,6 +22,7 @@ base AS (
     u.username,
     u.avatar_url,
     u.avatar_config,
+    u.current_streak,
     COUNT(*)                                              AS games_played,
     COUNT(*) FILTER (WHERE gr.solved)                     AS wins,
     COUNT(*) FILTER (WHERE gr.solved AND gr.guesses = 1)  AS perfect_games,
@@ -51,22 +54,21 @@ base AS (
     AND (gr.solved = true OR gr.guesses >= 6)
     AND w.date >= wb.week_start
     AND w.date <= wb.week_end
-  GROUP BY gr.user_id, u.username, u.avatar_url, u.avatar_config, gibor.gibor_badge
+  GROUP BY gr.user_id, u.username, u.avatar_url, u.avatar_config, u.current_streak, gibor.gibor_badge
 )
 SELECT
   b.*,
+  (b.wins = 7)                                           AS perfect_week,
   DENSE_RANK() OVER (
     ORDER BY
       b.wins DESC,
       b.avg_guesses ASC NULLS LAST,
-      b.perfect_games DESC,
+      b.current_streak DESC,
       b.games_played DESC
   ) AS rank
 FROM base b;
 
 
--- Monthly leaderboard: aggregates results for the current calendar month.
--- Same ranking logic as weekly.
 CREATE VIEW leaderboard_monthly AS
 WITH month_bounds AS (
   SELECT
@@ -79,6 +81,7 @@ base AS (
     u.username,
     u.avatar_url,
     u.avatar_config,
+    u.current_streak,
     COUNT(*)                                              AS games_played,
     COUNT(*) FILTER (WHERE gr.solved)                     AS wins,
     COUNT(*) FILTER (WHERE gr.solved AND gr.guesses = 1)  AS perfect_games,
@@ -87,7 +90,9 @@ base AS (
       100.0 * COUNT(*) FILTER (WHERE gr.solved) / NULLIF(COUNT(*), 0),
       0
     )                                                     AS win_rate,
-    COALESCE(gibor.gibor_badge, false)                    AS gibor_badge
+    COALESCE(gibor.gibor_badge, false)                    AS gibor_badge,
+    (CURRENT_DATE - mb.month_start + 1)::integer          AS days_elapsed,
+    (mb.month_end - mb.month_start + 1)::integer          AS days_in_month
   FROM game_results gr
   JOIN users u ON u.id = gr.user_id
   JOIN words w ON w.id = gr.word_id
@@ -110,15 +115,18 @@ base AS (
     AND (gr.solved = true OR gr.guesses >= 6)
     AND w.date >= mb.month_start
     AND w.date <= mb.month_end
-  GROUP BY gr.user_id, u.username, u.avatar_url, u.avatar_config, gibor.gibor_badge
+  GROUP BY gr.user_id, u.username, u.avatar_url, u.avatar_config, u.current_streak,
+           gibor.gibor_badge, mb.month_start, mb.month_end
 )
 SELECT
   b.*,
+  (b.wins >= 7 AND b.wins = b.days_elapsed)             AS perfect_month_running,
+  (b.wins = b.days_in_month)                             AS perfect_month_full,
   DENSE_RANK() OVER (
     ORDER BY
       b.wins DESC,
       b.avg_guesses ASC NULLS LAST,
-      b.perfect_games DESC,
+      b.current_streak DESC,
       b.games_played DESC
   ) AS rank
 FROM base b;

@@ -157,14 +157,16 @@ export default function AdminTestingClient({ isDev }: { isDev: boolean }) {
 
           <div className="flex flex-col gap-2">
             <p className="text-sm text-gray-500">
-              הזרק 8 שחקני בדיקה עם תוצאות שונות להיום — שימושי לבדיקת דירוג, עיצוב, ומיגרציות DB.
+              הזרק 16 שחקני בדיקה עם נתונים לכל הדירוגים — יומי, שבועי, חודשי, וכל הזמן.
+              כולל hard_mode (לבדיקת תג גיבור 💪), duration_seconds (שברי שנייה בדירוג יומי),
+              perfect_games (מחלק עניבות בדירוגים שבועי/חודשי), ועניבות מכוונות בין שחקנים.
             </p>
             <button
               onClick={seedLeaderboard}
               disabled={loading}
               className="self-start bg-yellow-700 hover:bg-yellow-600 disabled:opacity-50 text-white px-5 py-2 rounded-lg font-medium transition-colors"
             >
-              הזרק שחקנים לדירוג היומי
+              הזרק שחקנים לכל הדירוגים
             </button>
           </div>
 

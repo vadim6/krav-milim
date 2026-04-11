@@ -1,18 +1,12 @@
--- ============================================================
--- Weekly & Monthly Leaderboard Views
--- Gives new players a fair chance to compete on shorter windows,
--- not just all-time cumulative stats.
--- ============================================================
+-- Read-only views for the previous week and previous calendar month.
+-- Identical structure to leaderboard_weekly / leaderboard_monthly so the
+-- frontend can reuse the same column set without any type gymnastics.
 
--- Weekly leaderboard: aggregates results for the current Sun–Sat week.
--- date_trunc('week') gives Monday; shifting +1 day before truncating and -1 after
--- converts that to Sunday start.
--- Ranks by: wins DESC, avg_guesses ASC, perfect_games DESC, games_played DESC
-CREATE VIEW leaderboard_weekly AS
+CREATE VIEW leaderboard_weekly_prev AS
 WITH week_bounds AS (
   SELECT
-    (date_trunc('week', CURRENT_DATE + INTERVAL '1 day') - INTERVAL '1 day')::date AS week_start,
-    (date_trunc('week', CURRENT_DATE + INTERVAL '1 day') + INTERVAL '5 days')::date AS week_end
+    ((date_trunc('week', CURRENT_DATE + INTERVAL '1 day') - INTERVAL '1 day') - INTERVAL '7 days')::date AS week_start,
+    ((date_trunc('week', CURRENT_DATE + INTERVAL '1 day') + INTERVAL '5 days') - INTERVAL '7 days')::date AS week_end
 ),
 base AS (
   SELECT
@@ -20,6 +14,7 @@ base AS (
     u.username,
     u.avatar_url,
     u.avatar_config,
+    u.current_streak,
     COUNT(*)                                              AS games_played,
     COUNT(*) FILTER (WHERE gr.solved)                     AS wins,
     COUNT(*) FILTER (WHERE gr.solved AND gr.guesses = 1)  AS perfect_games,
@@ -51,27 +46,26 @@ base AS (
     AND (gr.solved = true OR gr.guesses >= 6)
     AND w.date >= wb.week_start
     AND w.date <= wb.week_end
-  GROUP BY gr.user_id, u.username, u.avatar_url, u.avatar_config, gibor.gibor_badge
+  GROUP BY gr.user_id, u.username, u.avatar_url, u.avatar_config, u.current_streak, gibor.gibor_badge
 )
 SELECT
   b.*,
+  (b.wins = 7)                                           AS perfect_week,
   DENSE_RANK() OVER (
     ORDER BY
       b.wins DESC,
       b.avg_guesses ASC NULLS LAST,
-      b.perfect_games DESC,
+      b.current_streak DESC,
       b.games_played DESC
   ) AS rank
 FROM base b;
 
 
--- Monthly leaderboard: aggregates results for the current calendar month.
--- Same ranking logic as weekly.
-CREATE VIEW leaderboard_monthly AS
+CREATE VIEW leaderboard_monthly_prev AS
 WITH month_bounds AS (
   SELECT
-    date_trunc('month', CURRENT_DATE)::date AS month_start,
-    (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day')::date AS month_end
+    date_trunc('month', CURRENT_DATE - INTERVAL '1 month')::date AS month_start,
+    (date_trunc('month', CURRENT_DATE) - INTERVAL '1 day')::date AS month_end
 ),
 base AS (
   SELECT
@@ -79,6 +73,7 @@ base AS (
     u.username,
     u.avatar_url,
     u.avatar_config,
+    u.current_streak,
     COUNT(*)                                              AS games_played,
     COUNT(*) FILTER (WHERE gr.solved)                     AS wins,
     COUNT(*) FILTER (WHERE gr.solved AND gr.guesses = 1)  AS perfect_games,
@@ -87,7 +82,9 @@ base AS (
       100.0 * COUNT(*) FILTER (WHERE gr.solved) / NULLIF(COUNT(*), 0),
       0
     )                                                     AS win_rate,
-    COALESCE(gibor.gibor_badge, false)                    AS gibor_badge
+    COALESCE(gibor.gibor_badge, false)                    AS gibor_badge,
+    (mb.month_end - mb.month_start + 1)::integer          AS days_elapsed,
+    (mb.month_end - mb.month_start + 1)::integer          AS days_in_month
   FROM game_results gr
   JOIN users u ON u.id = gr.user_id
   JOIN words w ON w.id = gr.word_id
@@ -110,15 +107,18 @@ base AS (
     AND (gr.solved = true OR gr.guesses >= 6)
     AND w.date >= mb.month_start
     AND w.date <= mb.month_end
-  GROUP BY gr.user_id, u.username, u.avatar_url, u.avatar_config, gibor.gibor_badge
+  GROUP BY gr.user_id, u.username, u.avatar_url, u.avatar_config, u.current_streak,
+           gibor.gibor_badge, mb.month_start, mb.month_end
 )
 SELECT
   b.*,
+  (b.wins >= 7 AND b.wins = b.days_elapsed)             AS perfect_month_running,
+  (b.wins = b.days_in_month)                             AS perfect_month_full,
   DENSE_RANK() OVER (
     ORDER BY
       b.wins DESC,
       b.avg_guesses ASC NULLS LAST,
-      b.perfect_games DESC,
+      b.current_streak DESC,
       b.games_played DESC
   ) AS rank
 FROM base b;
