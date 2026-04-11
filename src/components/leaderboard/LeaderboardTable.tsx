@@ -12,6 +12,15 @@ import type {
 } from "@/types/shared"
 import AvatarDisplay from "@/components/avatar/AvatarDisplay"
 import type { AvatarConfig } from "@/lib/avatar/styles"
+import {
+  getDisplayMedal,
+  getWeeklySpecial,
+  getMonthlySpecial,
+  weeklyHasCrown,
+  monthlyHasCrown,
+  showFireBadge,
+} from "@/lib/leaderboard/ranking"
+import type { SpecialIcon } from "@/lib/leaderboard/ranking"
 
 function LeaderboardInfo() {
   const [open, setOpen] = useState(false)
@@ -112,18 +121,6 @@ const TAB_CONFIG: { key: Tab; label: string }[] = [
   { key: "alltime", label: "כל הזמנים" },
 ]
 
-type SpecialIcon = "crown" | "superman" | null
-
-/** Medal for top 3, nothing above rank 3 */
-function getMedal(rank: number | null): { emoji: string; label: string } | null {
-  if (rank == null) return null
-  if (rank === 1) return { emoji: "🥇", label: "מקום ראשון" }
-  if (rank === 2) return { emoji: "🥈", label: "מקום שני" }
-  if (rank === 3) return { emoji: "🥉", label: "מקום שלישי" }
-  return null
-}
-
-
 function RankCell({ rank, special = null, hasCrown = false }: { rank: number | null; special?: SpecialIcon; hasCrown?: boolean }) {
   // Superman: perfect full month — shown instead of medal for rank 1
   if (special === "superman" && rank === 1) {
@@ -150,8 +147,7 @@ function RankCell({ rank, special = null, hasCrown = false }: { rank: number | n
   }
 
   // When a crown holder exists, everyone shifts down one medal tier
-  const medalRank = hasCrown && rank != null ? rank - 1 : rank
-  const medal = getMedal(medalRank)
+  const medal = getDisplayMedal(rank, hasCrown)
   if (medal) {
     return (
       <span className="relative group cursor-default outline-none" tabIndex={0}>
@@ -199,7 +195,7 @@ function PlayerCell({ username, avatarConfig, giborBadge }: {
 
 /** Streak fire badge for active streaks >= 7 */
 function StreakBadge({ streak }: { streak: number | null }) {
-  if (!streak || streak < 7) return <span className="text-gray-400">{streak || "—"}</span>
+  if (!showFireBadge(streak)) return <span className="text-gray-400">{streak || "—"}</span>
   return (
     <span className="relative group cursor-default outline-none" tabIndex={0}>
       <span>{streak}</span>
@@ -369,13 +365,13 @@ export default function LeaderboardTable({ daily, alltime, weekly, weeklyPrev, m
           </thead>
           <tbody>
             {activeWeekly.map((row) => {
-              const hasCrown = activeWeekly[0]?.perfect_week === true
+              const hasCrown = weeklyHasCrown(activeWeekly)
               return (
                 <tr key={row.user_id} className="border-b last:border-0">
                   <td className="py-2.5 sm:py-3">
                     <RankCell
                       rank={row.rank}
-                      special={row.rank === 1 && row.perfect_week ? "crown" : null}
+                      special={getWeeklySpecial(row.rank, row.perfect_week)}
                       hasCrown={hasCrown}
                     />
                   </td>
@@ -419,10 +415,8 @@ export default function LeaderboardTable({ daily, alltime, weekly, weeklyPrev, m
           </thead>
           <tbody>
             {activeMonthly.map((row) => {
-              const hasCrown = activeMonthly[0]?.perfect_month_full === true || activeMonthly[0]?.perfect_month_running === true
-              const special: SpecialIcon =
-                row.rank === 1 && row.perfect_month_full    ? "superman" :
-                row.rank === 1 && row.perfect_month_running ? "crown"    : null
+              const hasCrown = monthlyHasCrown(activeMonthly)
+              const special = getMonthlySpecial(row.rank, row.perfect_month_full, row.perfect_month_running)
               return (
                 <tr key={row.user_id} className="border-b last:border-0">
                   <td className="py-2.5 sm:py-3"><RankCell rank={row.rank} special={special} hasCrown={hasCrown} /></td>
