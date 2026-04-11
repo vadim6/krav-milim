@@ -179,16 +179,15 @@ async function recordNemesisScores(
 
   for (const rivalry of rivalries) {
     const isChallenger = rivalry.challenger_id === userId
-    const updateField  = isChallenger ? "challenger_result_id" : "receiver_result_id"
+
+    const score = isChallenger
+      ? { rivalry_id: rivalry.id, word_id: wordId, challenger_result_id: gameResultId }
+      : { rivalry_id: rivalry.id, word_id: wordId, receiver_result_id:   gameResultId }
 
     await service
       .from("nemesis_scores")
       .upsert(
-        [{
-          rivalry_id: rivalry.id,
-          word_id:    wordId,
-          [updateField]: gameResultId,
-        }],
+        [score],
         { onConflict: "rivalry_id,word_id", ignoreDuplicates: false },
       )
   }
