@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceClient } from "@/lib/supabase/service"
+import type { Json } from "@/types/database"
 
 const COOLDOWN_DAYS = 30
 const USERNAME_RE   = /^[\p{L}\p{N}_.-]{2,30}$/u
@@ -30,8 +31,7 @@ export async function PATCH(req: NextRequest) {
 
   const body         = await req.json()
   const service      = createServiceClient()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updates: Record<string, any> = {}
+  const updates: { avatar_config?: Json; username?: string; username_changed_at?: string } = {}
 
   // --- Avatar config (no cooldown) ---
   if ("avatar_config" in body) {
