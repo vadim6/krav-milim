@@ -7,10 +7,30 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.1"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -309,6 +329,85 @@ export type Database = {
           },
         ]
       }
+      notification_settings: {
+        Row: {
+          created_at: string
+          discord_webhook_url: string | null
+          email_enabled: boolean
+          last_reminder_sent_date: string | null
+          notify_daily_reminder: boolean
+          notify_rival_solved: boolean
+          reminder_hour: number
+          slack_webhook_url: string | null
+          telegram_chat_id: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          discord_webhook_url?: string | null
+          email_enabled?: boolean
+          last_reminder_sent_date?: string | null
+          notify_daily_reminder?: boolean
+          notify_rival_solved?: boolean
+          reminder_hour?: number
+          slack_webhook_url?: string | null
+          telegram_chat_id?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          discord_webhook_url?: string | null
+          email_enabled?: boolean
+          last_reminder_sent_date?: string | null
+          notify_daily_reminder?: boolean
+          notify_rival_solved?: boolean
+          reminder_hour?: number
+          slack_webhook_url?: string | null
+          telegram_chat_id?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      telegram_link_tokens: {
+        Row: {
+          expires_at: string
+          token: string
+          used: boolean
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string
+          token: string
+          used?: boolean
+          user_id: string
+        }
+        Update: {
+          expires_at?: string
+          token?: string
+          used?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telegram_link_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           avatar_config: Json | null
@@ -319,7 +418,7 @@ export type Database = {
           email: string
           id: string
           last_solved_date: string | null
-          username: string
+          username: string | null
           username_changed_at: string | null
         }
         Insert: {
@@ -331,7 +430,7 @@ export type Database = {
           email: string
           id: string
           last_solved_date?: string | null
-          username: string
+          username?: string | null
           username_changed_at?: string | null
         }
         Update: {
@@ -343,7 +442,7 @@ export type Database = {
           email?: string
           id?: string
           last_solved_date?: string | null
-          username?: string
+          username?: string | null
           username_changed_at?: string | null
         }
         Relationships: []
@@ -410,8 +509,8 @@ export type Database = {
     Views: {
       leaderboard_alltime: {
         Row: {
-          avatar_url: string | null
           avatar_config: Json | null
+          avatar_url: string | null
           avg_guesses: number | null
           best_streak: number | null
           current_streak: number | null
@@ -433,8 +532,8 @@ export type Database = {
       }
       leaderboard_global: {
         Row: {
-          avatar_url: string | null
           avatar_config: Json | null
+          avatar_url: string | null
           date: string | null
           gibor_badge: boolean | null
           guesses: number | null
@@ -461,14 +560,19 @@ export type Database = {
           },
         ]
       }
-      leaderboard_weekly: {
+      leaderboard_monthly: {
         Row: {
-          avatar_url: string | null
           avatar_config: Json | null
+          avatar_url: string | null
           avg_guesses: number | null
+          current_streak: number | null
+          days_elapsed: number | null
+          days_in_month: number | null
           games_played: number | null
           gibor_badge: boolean | null
           perfect_games: number | null
+          perfect_month_full: boolean | null
+          perfect_month_running: boolean | null
           rank: number | null
           user_id: string | null
           username: string | null
@@ -485,14 +589,71 @@ export type Database = {
           },
         ]
       }
-      leaderboard_monthly: {
+      leaderboard_monthly_prev: {
         Row: {
-          avatar_url: string | null
           avatar_config: Json | null
+          avatar_url: string | null
           avg_guesses: number | null
+          current_streak: number | null
+          days_elapsed: number | null
+          days_in_month: number | null
           games_played: number | null
           gibor_badge: boolean | null
           perfect_games: number | null
+          perfect_month_full: boolean | null
+          perfect_month_running: boolean | null
+          rank: number | null
+          user_id: string | null
+          username: string | null
+          win_rate: number | null
+          wins: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leaderboard_weekly: {
+        Row: {
+          avatar_config: Json | null
+          avatar_url: string | null
+          avg_guesses: number | null
+          current_streak: number | null
+          games_played: number | null
+          gibor_badge: boolean | null
+          perfect_games: number | null
+          perfect_week: boolean | null
+          rank: number | null
+          user_id: string | null
+          username: string | null
+          win_rate: number | null
+          wins: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leaderboard_weekly_prev: {
+        Row: {
+          avatar_config: Json | null
+          avatar_url: string | null
+          avg_guesses: number | null
+          current_streak: number | null
+          games_played: number | null
+          gibor_badge: boolean | null
+          perfect_games: number | null
+          perfect_week: boolean | null
           rank: number | null
           user_id: string | null
           username: string | null
@@ -541,7 +702,14 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_scheduled_cron_jobs: {
+        Args: never
+        Returns: {
+          jobname: string
+        }[]
+      }
+      pick_daily_word: { Args: never; Returns: undefined }
+      pick_word_for_date: { Args: { target_date: string }; Returns: undefined }
     }
     Enums: {
       chevre_role: "admin" | "member"
@@ -672,6 +840,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       chevre_role: ["admin", "member"],
