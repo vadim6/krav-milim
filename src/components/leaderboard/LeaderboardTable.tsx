@@ -319,7 +319,7 @@ export default function LeaderboardTable({ daily, alltime, weekly, weeklyPrev, m
       {tab === "daily" && daily.length > 0 && (
         <table className="w-full text-base sm:text-lg">
           <thead>
-            <tr className="border-b text-gray-400 text-right">
+            <tr className="border-b text-gray-400 text-right [&>th]:whitespace-nowrap">
               <th className="py-2 sm:py-3 font-medium">#</th>
               <th className="py-2 sm:py-3 font-medium">שחקן</th>
               <th className="py-2 sm:py-3 font-medium">ניחושים</th>
@@ -354,8 +354,8 @@ export default function LeaderboardTable({ daily, alltime, weekly, weeklyPrev, m
       {tab === "weekly" && activeWeekly.length > 0 && (
         <table className="w-full table-fixed text-base sm:text-lg">
           <thead>
-            <tr className="border-b text-gray-400 text-right">
-              <th className="py-2 sm:py-3 font-medium w-8 sm:w-10">#</th>
+            <tr className="border-b text-gray-400 text-right [&>th]:whitespace-nowrap">
+              <th className="py-2 sm:py-3 font-medium w-[9%] sm:w-10">#</th>
               <th className="py-2 sm:py-3 font-medium w-[40%]">שחקן</th>
               <th className="py-2 sm:py-3 font-medium w-[15%]">נצחונות</th>
               <th className="py-2 sm:py-3 font-medium w-[12%]">ממוצע</th>
@@ -404,8 +404,8 @@ export default function LeaderboardTable({ daily, alltime, weekly, weeklyPrev, m
       {tab === "monthly" && activeMonthly.length > 0 && (
         <table className="w-full table-fixed text-base sm:text-lg">
           <thead>
-            <tr className="border-b text-gray-400 text-right">
-              <th className="py-2 sm:py-3 font-medium w-8 sm:w-10">#</th>
+            <tr className="border-b text-gray-400 text-right [&>th]:whitespace-nowrap">
+              <th className="py-2 sm:py-3 font-medium w-[9%] sm:w-10">#</th>
               <th className="py-2 sm:py-3 font-medium w-[40%]">שחקן</th>
               <th className="py-2 sm:py-3 font-medium w-[15%]">נצחונות</th>
               <th className="py-2 sm:py-3 font-medium w-[12%]">ממוצע</th>
@@ -449,11 +449,11 @@ export default function LeaderboardTable({ daily, alltime, weekly, weeklyPrev, m
       {tab === "alltime" && alltime.length > 0 && (
         <table className="w-full table-fixed text-base sm:text-lg">
           <thead>
-            <tr className="border-b text-gray-400 text-right">
-              <th className="py-2 sm:py-3 font-medium w-8 sm:w-10">#</th>
-              <th className="py-2 sm:py-3 font-medium">שחקן</th>
-              <th className="py-2 sm:py-3 font-medium w-[13%]">ניחושים</th>
-              <th className="py-2 sm:py-3 font-medium w-[13%]">נצחונות</th>
+            <tr className="border-b text-gray-400 text-right [&>th]:whitespace-nowrap">
+              <th className="py-2 sm:py-3 font-medium w-[9%] sm:w-10">#</th>
+              <th className="py-2 sm:py-3 font-medium w-[40%]">שחקן</th>
+              <th className="py-2 sm:py-3 font-medium w-[12%]">ממוצע</th>
+              <th className="py-2 sm:py-3 font-medium w-[15%]">נצחונות</th>
               <th className="py-2 sm:py-3 font-medium w-[10%]">רצף</th>
             </tr>
           </thead>
