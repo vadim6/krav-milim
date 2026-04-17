@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { createServiceClient } from "@/lib/supabase/service"
 import GameBoard from "@/components/game/GameBoard"
+import { israelToday, formatHebrewDate } from "@/lib/dates"
 import type { GuessHistoryEntry, RevealedLetters } from "@/types/shared"
 
 export default async function GamePage() {
@@ -8,7 +9,7 @@ export default async function GamePage() {
 
   // Fetch today's global word id via service role (bypasses RLS on words table)
   // The answer is never sent to the client — only the word id
-  const today = new Date().toISOString().split("T")[0]
+  const today = israelToday()
   const { data: word } = await service
     .from("words")
     .select("id")
@@ -57,8 +58,11 @@ export default async function GamePage() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <h1 className="text-2xl font-bold">מילת היום</h1>
+    <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-0.5">
+        <h1 className="text-2xl font-bold">מילת היום</h1>
+        <p className="text-xs text-gray-400">{formatHebrewDate(today)}</p>
+      </div>
       <GameBoard wordId={word.id} existingResult={existing} initialStreakData={initialStreakData} />
     </div>
   )

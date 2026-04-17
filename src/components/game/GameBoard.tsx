@@ -36,9 +36,9 @@ export default function GameBoard({ wordId, existingResult, initialStreakData }:
   useEffect(() => {
     function compute() {
       const vh = window.visualViewport?.height ?? window.innerHeight
-      // Fixed overhead: navbar(56) + pt-6(24) + h1+gap(56) + row-gaps(20)
+      // Fixed overhead: navbar(56) + pt-6(24) + h1+date+gap(68) + row-gaps(20)
       //               + board-keyboard gap(8) + keyboard h-14 3rows+gaps(184) + pb-20(80)
-      const FIXED = 428
+      const FIXED = 440
       setTileSize(Math.round(Math.min(68, Math.max(38, (vh - FIXED) / 6))))
     }
     compute()
