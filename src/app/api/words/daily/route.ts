@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { israelToday } from "@/lib/dates"
 
 /** GET /api/words/daily — returns today's word_id and metadata (no answer). */
 export async function GET() {
   const supabase = await createClient()
-  const today = new Date().toISOString().split("T")[0]
+  const today = israelToday()
 
   const { data, error } = await supabase
     .from("words")

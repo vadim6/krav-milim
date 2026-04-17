@@ -6,6 +6,7 @@ import { isHebrewWord, normalizeWord } from "@/lib/game/hebrew"
 import { isValidWord } from "@/lib/game/wordlist"
 import { WORD_LENGTH, MAX_GUESSES } from "@/lib/game/constants"
 import { sendNotification } from "@/lib/notifications/send"
+import { israelToday, israelYesterday } from "@/lib/dates"
 import type { GuessHistoryEntry, TileState } from "@/types/shared"
 
 interface SubmitBody {
@@ -135,8 +136,8 @@ async function updateStreak(
 
   if (!userData) return { current_streak: 0, best_streak: 0 }
 
-  const today      = new Date().toISOString().split("T")[0]
-  const yesterday  = new Date(Date.now() - 86400000).toISOString().split("T")[0]
+  const today      = israelToday()
+  const yesterday  = israelYesterday()
   const lastSolved = userData.last_solved_date as string | null
 
   let newStreak: number

@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
 import LeaderboardTable from "@/components/leaderboard/LeaderboardTable"
+import { israelToday } from "@/lib/dates"
 
 export default async function LeaderboardPage() {
   const supabase = await createClient()
-  const today = new Date().toISOString().split("T")[0]
+  const today = israelToday()
 
   const [
     { data: daily },
