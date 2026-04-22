@@ -1,0 +1,28 @@
+#!/bin/sh
+# For each staged SQL migration, reject CREATE TABLE in public schema
+# without a matching ENABLE ROW LEVEL SECURITY statement.
+
+STAGED_SQL=$(git diff --cached --name-only | grep 'supabase/migrations/.*\.sql')
+
+if [ -z "$STAGED_SQL" ]; then
+  exit 0
+fi
+
+FAILED=0
+
+for f in $STAGED_SQL; do
+  CONTENT=$(git show ":$f")
+
+  if echo "$CONTENT" | grep -qi 'CREATE TABLE'; then
+    if ! echo "$CONTENT" | grep -qi 'ENABLE ROW LEVEL SECURITY'; then
+      echo "Error: $f creates a table without ENABLE ROW LEVEL SECURITY"
+      FAILED=1
+    fi
+  fi
+done
+
+if [ $FAILED -ne 0 ]; then
+  echo ""
+  echo "Add 'ALTER TABLE <name> ENABLE ROW LEVEL SECURITY;' for each new table."
+  exit 1
+fi
