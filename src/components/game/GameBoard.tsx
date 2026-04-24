@@ -78,6 +78,14 @@ export default function GameBoard({ wordId, existingResult, initialStreakData }:
   const [tileSize,     setTileSize]     = useState(68)
   const [keyHeightPx,  setKeyHeightPx]  = useState<number | undefined>(undefined)
   useEffect(() => {
+    function getOverlap() {
+      const keyboardRect = document.querySelector<HTMLElement>("[data-keyboard-root]")?.getBoundingClientRect()
+      const mobileNavRect = document.querySelector<HTMLElement>("[data-mobile-nav]")?.getBoundingClientRect()
+
+      if (!keyboardRect || !mobileNavRect) return 0
+      return keyboardRect.bottom - mobileNavRect.top
+    }
+
     function compute(reason: string) {
       const viewport = window.visualViewport
       const vh = viewport?.height ?? window.innerHeight
@@ -225,6 +233,9 @@ export default function GameBoard({ wordId, existingResult, initialStreakData }:
     let raf1 = 0
     let raf2 = 0
     const timeouts: ReturnType<typeof setTimeout>[] = []
+    const observers: ResizeObserver[] = []
+    let settleInterval: ReturnType<typeof setInterval> | undefined
+    let settleTimeout: ReturnType<typeof setTimeout> | undefined
 
     function scheduleCompute(reason: string) {
       compute(reason)
@@ -239,40 +250,120 @@ export default function GameBoard({ wordId, existingResult, initialStreakData }:
         raf2 = window.requestAnimationFrame(() => compute(`${reason}:raf2`))
       })
 
-      ;[120, 300, 600].forEach((delay) => {
+      ;[120, 300, 600, 1000, 1500].forEach((delay) => {
         timeouts.push(setTimeout(() => compute(`${reason}:t${delay}`), delay))
       })
     }
 
+    function stopSettleLoop() {
+      if (settleInterval) clearInterval(settleInterval)
+      if (settleTimeout) clearTimeout(settleTimeout)
+      settleInterval = undefined
+      settleTimeout = undefined
+    }
+
+    function startSettleLoop(reason: string) {
+      if (!isIOSDevice()) return
+
+      stopSettleLoop()
+
+      settleInterval = setInterval(() => {
+        compute(`${reason}:settle`)
+        if (getOverlap() <= 0) {
+          stopSettleLoop()
+        }
+      }, 150)
+
+      settleTimeout = setTimeout(() => {
+        stopSettleLoop()
+      }, 2500)
+    }
+
     function handlePageShow() {
       scheduleCompute("pageshow")
+      startSettleLoop("pageshow")
     }
 
     function handleResize() {
       scheduleCompute("window-resize")
+      startSettleLoop("window-resize")
     }
 
     function handleViewportResize() {
       scheduleCompute("visualViewport-resize")
+      startSettleLoop("visualViewport-resize")
     }
 
     function handleViewportScroll() {
       scheduleCompute("visualViewport-scroll")
+      startSettleLoop("visualViewport-scroll")
+    }
+
+    function handleLoad() {
+      scheduleCompute("window-load")
+      startSettleLoop("window-load")
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState !== "visible") return
+      scheduleCompute("visibilitychange")
+      startSettleLoop("visibilitychange")
+    }
+
+    function handleFocus() {
+      scheduleCompute("focus")
+      startSettleLoop("focus")
     }
 
     scheduleCompute("mount")
+    startSettleLoop("mount")
     window.addEventListener("resize", handleResize)
+    window.addEventListener("load", handleLoad)
+    window.addEventListener("focus", handleFocus)
     window.addEventListener("pageshow", handlePageShow)
+    document.addEventListener("visibilitychange", handleVisibilityChange)
     window.visualViewport?.addEventListener("resize", handleViewportResize)
     window.visualViewport?.addEventListener("scroll", handleViewportScroll)
+
+    if ("fonts" in document) {
+      document.fonts.ready.then(() => {
+        scheduleCompute("fonts-ready")
+        startSettleLoop("fonts-ready")
+      })
+    }
+
+    if ("ResizeObserver" in window) {
+      const resizeTargets = [
+        boardRef.current?.parentElement,
+        document.querySelector("header"),
+        document.querySelector("[data-mobile-nav]"),
+        document.querySelector("main"),
+        document.documentElement,
+        ].filter((target): target is Element => !!target)
+
+        resizeTargets.forEach((target, index) => {
+          const observer = new ResizeObserver(() => {
+            scheduleCompute(`resize-observer-${index}`)
+            startSettleLoop(`resize-observer-${index}`)
+          })
+          observer.observe(target)
+          observers.push(observer)
+        })
+      }
+
     return () => {
       cancelAnimationFrame(raf1)
       cancelAnimationFrame(raf2)
       timeouts.forEach(clearTimeout)
+      stopSettleLoop()
       window.removeEventListener("resize", handleResize)
+      window.removeEventListener("load", handleLoad)
+      window.removeEventListener("focus", handleFocus)
       window.removeEventListener("pageshow", handlePageShow)
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
       window.visualViewport?.removeEventListener("resize", handleViewportResize)
       window.visualViewport?.removeEventListener("scroll", handleViewportScroll)
+      observers.forEach((observer) => observer.disconnect())
     }
   }, [])
 
