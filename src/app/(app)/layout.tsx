@@ -18,7 +18,7 @@ export default async function AppLayout({
   return (
     <div className="flex min-h-dvh flex-col">
       <NavBar />
-      <main className="flex-1 px-4 py-6 max-w-2xl mx-auto w-full pb-20 sm:pb-6">
+      <main className="flex flex-1 min-h-0 flex-col px-4 py-6 max-w-2xl mx-auto w-full pb-20 sm:pb-6">
         {children}
       </main>
       <MobileNav isDev={isDev} />

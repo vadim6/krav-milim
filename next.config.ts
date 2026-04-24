@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
   },
-  output: "standalone",
+  //output: "standalone",
   images: {
     remotePatterns: [
       {

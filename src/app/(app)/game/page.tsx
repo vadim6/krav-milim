@@ -58,12 +58,14 @@ export default async function GamePage() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="flex flex-col items-center gap-0.5">
+    <div className="flex flex-1 min-h-0 flex-col items-center gap-4 overflow-hidden">
+      <div className="shrink-0 flex flex-col items-center gap-0.5">
         <h1 className="text-2xl font-bold">מילת היום</h1>
         <p className="text-xs text-gray-400">{formatHebrewDate(today)}</p>
       </div>
-      <GameBoard wordId={word.id} existingResult={existing} initialStreakData={initialStreakData} />
+      <div className="flex w-full flex-1 min-h-0 justify-center overflow-hidden">
+        <GameBoard wordId={word.id} existingResult={existing} initialStreakData={initialStreakData} />
+      </div>
     </div>
   )
 }

@@ -11,6 +11,7 @@ interface Props {
   animatingEntry?:      GuessHistoryEntry  // the row currently flipping
   isRevealing:          boolean
   onKey:                (key: string) => void
+  keyHeightPx?:         number             // optional override of the default h-14 (used on iOS)
 }
 
 type KeyState = "correct" | "present" | "absent" | "unused"
@@ -39,7 +40,9 @@ export default function HebrewKeyboard({
   animatingEntry,
   isRevealing,
   onKey,
+  keyHeightPx,
 }: Props) {
+  const keyStyle = keyHeightPx ? { height: `${keyHeightPx}px` } : undefined
   // `displayed` is what the keyboard actually renders.
   // During a flip it lags behind revealedLetters and catches up one key at a time.
   const [displayed, setDisplayed] = useState<RevealedLetters>(revealedLetters)
@@ -106,13 +109,14 @@ export default function HebrewKeyboard({
   }, [isRevealing, animatingEntry, prevRevealedLetters, revealedLetters])
 
   return (
-    <div className="flex flex-col gap-2 w-full max-w-[500px]" dir="rtl">
+    <div data-keyboard-root className="flex flex-col gap-2 w-full max-w-[500px]" dir="rtl">
       {HEBREW_KEYBOARD_ROWS.map((row, ri) => (
         <div key={ri} className="flex justify-center gap-1.5">
           {ri === 0 && (
             <button
               onClick={() => onKey(KEY_DELETE)}
               className={`${baseKey} flex-[1.6] bg-gray-300 dark:bg-gray-600 text-lg`}
+              style={keyStyle}
               aria-label="מחק"
             >
               ⌫
@@ -123,6 +127,7 @@ export default function HebrewKeyboard({
             <button
               onClick={() => onKey(KEY_ENTER)}
               className={`${baseKey} flex-[1.6] bg-gray-300 dark:bg-gray-600 text-sm`}
+              style={keyStyle}
               aria-label="Enter"
             >
               ↵ Enter
@@ -134,6 +139,7 @@ export default function HebrewKeyboard({
               key={letter}
               onClick={() => onKey(letter)}
               className={`${baseKey} flex-1 ${keyColors[stateOf(normalizeHebrew(letter), displayed)]}`}
+              style={keyStyle}
               aria-label={letter}
             >
               {letter}
