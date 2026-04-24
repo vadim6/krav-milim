@@ -56,9 +56,11 @@ export default async function WordGamePage({ params }: Props) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <h1 className="text-2xl font-bold">{labels[word.source] ?? "שחק"}</h1>
-      <GameBoard wordId={wordId} existingResult={existing} initialStreakData={initialStreakData} />
+    <div className="flex flex-1 min-h-0 flex-col items-center gap-6 overflow-hidden">
+      <h1 className="shrink-0 text-2xl font-bold">{labels[word.source] ?? "שחק"}</h1>
+      <div className="flex w-full flex-1 min-h-0 justify-center overflow-hidden">
+        <GameBoard wordId={wordId} existingResult={existing} initialStreakData={initialStreakData} />
+      </div>
     </div>
   )
 }
